@@ -31,8 +31,8 @@ class JaxOptimizer:
         @jit
         def step(i, _opt_state, data):
             _params = get_params(_opt_state)
-            loss_func = model.get_loss_func(data)
-            g = jax.grad(loss_func)(_params)
+            loss_func = model.loss_func
+            g = jit(jax.grad(loss_func))(_params, data)
             return opt_update(i, g, _opt_state)
 
         self._step = step

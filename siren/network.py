@@ -40,23 +40,14 @@ class Siren:
         self.net_apply = net_apply
 
     """ *_p methods are used for optimization """
-    def f(self, x):
-        return self.net_apply(self.net_params, x)
+    def f(self, net_params, x):
+        return self.net_apply(net_params, x)
 
-    def get_f_p(self, x):
-        return lambda params: self.net_apply(params, x)
+    def df(self, net_params, x):
+        return jacobain_wrt_input(self.net_apply, net_params, x)
 
-    def df(self, x):
-        return jacobain_wrt_input(self.net_apply, self.net_params, x)
-
-    def get_df_p(self, x):
-        return lambda params: jacobain_wrt_input(self.net_params, params, x)
-
-    def d2f(self, x):
+    def d2f(self, net_params, x):
         return hessian_wrt_input(self.net_apply, self.net_params, x)
-
-    def get_d2f_p(self, x):
-        return lambda params: hessian_wrt_input(self.net_apply, params, x)
 
 def jacobain_wrt_input(net_apply, net_params, x):
     f = lambda x: net_apply(net_params, x)

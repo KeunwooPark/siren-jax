@@ -3,6 +3,7 @@ from siren.data_loader import ImageLoader
 from siren.optimizer import JaxOptimizer
 from siren.model import ImageModel
 from util.log import Logger
+from util.timer import Timer
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train SirenHighres')
@@ -11,9 +12,9 @@ def parse_args():
     parser.add_argument('--size', type=int, default=256, help="resize the image to this (squre) shape. 0 if not goint go resize")
     parser.add_argument('--do_batch', action='store_true', default=False, help="separate input to batches")
     parser.add_argument('--batch_size', type=int, default=256, help="the size of batches. only valid when --do_batch")
-    parser.add_argument('--epoch', type=int, default=1, help="number of epochs")
+    parser.add_argument('--epoch', type=int, default=1000, help="number of epochs")
     parser.add_argument('--lr', type=float, default=0.0002, help="learning rate")
-    parser.add_argument('--print_iter', type=int, default=1000, help="when to print intermediate info")
+    parser.add_argument('--print_iter', type=int, default=100, help="when to print intermediate info")
     parser.add_argument('--layers', type=str, default='256,256,256,256,256', help="layers of multi layer perceptron")
 
     args = parser.parse_args()
@@ -32,11 +33,14 @@ def main(args):
     input_img = image_loader.get_resized_image()
     logger.save_image("input", input_img)
 
+    timer = Timer()
+    timer.start()
     def interm_callback(i, data, params):
         log = {}
-        loss_func = model.get_loss_func(data)
-        log['loss'] = float(loss_func(params))
+        loss = model.loss_func(params, data)
+        log['loss'] = float(loss)
         log['iter'] = i
+        log['duration_per_iter'] = timer.get_dt() / args.print_iter
         logger.save_log(log)
         print(log)
 
