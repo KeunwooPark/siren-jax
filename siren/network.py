@@ -14,6 +14,7 @@ def create_mlp(input_dim, num_channels, output_dim, omega = 30):
         modules.append(layer.Sine(omega))
 
     modules.append(layer.Dense(output_dim, W_init = siren_init(omega = omega), b_init=bias_uniform()))
+    modules.append(stax.Dense(output_dim))
     net_init_random, net_apply = stax.serial(*modules)
 
     in_shape = (-1, input_dim)

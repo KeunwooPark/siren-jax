@@ -13,10 +13,14 @@ class ImageModel:
 
         @jit
         def loss_func(net_params):
-            output = self.net.get_f_p(x)(net_params)
+            f_p = self.net.get_f_p(x)
+            output = f_p(net_params)
             return jnp.mean((output - y)**2)
 
         return loss_func
 
     def update_net_params(self, params):
         self.net.net_params = params
+
+    def get_params(self):
+        return self.net.net_params

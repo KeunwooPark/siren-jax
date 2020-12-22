@@ -20,5 +20,7 @@ def sine_with_gain(gain):
     def func(input):
         return jnp.sin(input * gain)
 
+    return func
+
 def Sine(gain):
     return stax.elementwise(sine_with_gain(gain))
