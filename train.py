@@ -41,6 +41,7 @@ def main(args):
         log['loss'] = float(loss)
         log['iter'] = i
         log['duration_per_iter'] = timer.get_dt() / args.print_iter
+
         logger.save_log(log)
         print(log)
 
@@ -61,6 +62,7 @@ def main(args):
         interm_callback(optimizer.iter_cnt, data, optimizer.get_optimized_params())
 
     logger.save_net_params(optimizer.get_optimized_params())
+    logger.save_losses_plot()
 
 if __name__ == "__main__":
     args = parse_args()

@@ -3,6 +3,7 @@ import pickle
 import json
 import os
 from collections import defaultdict
+from util.plot import plot_losses
 
 def get_root_path():
     return pathlib.Path(__file__).parents[1]
@@ -12,6 +13,7 @@ class Logger:
         self.name = name
         self.create_paths(name)
         self.log_file = self.get_log_file()
+        self.log_for_plot = defaultdict(list)
 
     def create_paths(self, name):
         this_file = pathlib.Path(os.path.abspath(__file__))
@@ -49,9 +51,19 @@ class Logger:
         json_obj = json.dumps(log)
         self.log_file.write(json_obj + "\n")
 
+        for k, v in log.items():
+            self.log_for_plot[k].append(v)
+
     def save_image(self, name, pil_img):
         img_path = self.result_path / (name+".png")
         pil_img.save(str(img_path))
+
+    def get_plot_file_name(self):
+        return str(self.result_path / "loss.png")
+
+    def save_losses_plot(self):
+        plot_losses(self.log_for_plot, self.get_plot_file_name())
+
 
 
 class Loader:
@@ -70,10 +82,7 @@ class Loader:
 
         self._create_snapshot_path()
 
-    def _create_snapshot_path(self):
-        self.snapshot_path = self.results_path / "snapshots"
-
-    def load_model(self):
+    def load_params(self):
         model_path = self.results_path.joinpath("model.pkl")
         model = None
         with open(str(model_path), "rb") as f:
@@ -84,14 +93,6 @@ class Loader:
     def load_option(self):
         option_path = self.results_path.joinpath("option.yaml")
         return load_yaml_option(option_path)
-
-    def load_snapshot(self, step):
-        ss_path = self.snapshot_path / ("snapshot_{}.pkl".format(step))
-        snapshot = None
-        with open(str(ss_path), "rb") as f:
-            snapshot = pickle.load(f)
-
-        return snapshot
 
     def load_log(self):
         loss_path = self.results_path.joinpath("logges.txt")
@@ -112,16 +113,3 @@ class Loader:
         return logges
 
 
-def load_yaml_option(file_name):
-    option = None
-    with open(file_name, "r") as f:
-        option = yaml.load(f, Loader=yaml.FullLoader)
-
-    return option
-
-
-def load_base_option():
-    this_file = pathlib.Path(os.path.abspath(__file__))
-    proj_root = this_file.parents[1]
-    option_path = proj_root / "base_option.yaml"
-    return load_yaml_option(str(option_path))
