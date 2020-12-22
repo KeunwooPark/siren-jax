@@ -2,6 +2,7 @@ import argparse
 from siren.data_loader import ImageLoader
 from siren.optimizer import minimize_with_jax_optim
 from siren.model import ImageModel
+from util.log import Logger
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train SirenHighres')
@@ -20,7 +21,10 @@ def main(args):
     layers = [int(l) for l in args.layers.split(',')]
     model = ImageModel(layers)
     image_loader = ImageLoader(args.file, args.size, args.do_batch, args.batch_size)
-
+    name = args.file.split('.')[0]
+    logger = Logger(name)
+    print(vars(args))
+    logger.save_option(vars(args))
 
 if __name__ == "__main__":
     args = parse_args()
