@@ -5,7 +5,7 @@ from siren.optimizer import minimize_with_jax_optim
 
 class ImageModel:
     def __init__(self, layers):
-        self.net = Siren(input_dim =2, layers, output_dim = 3)
+        self.net = Siren(input_dim =2, layers=layers, output_dim = 3)
 
     def get_loss_func(self, data):
         x = data['input']

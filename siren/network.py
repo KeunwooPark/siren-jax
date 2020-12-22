@@ -1,15 +1,17 @@
-from jax import stax
+from jax.experimental import stax
+import jax
 
-from siren.initilizer import siren_init, siren_init_first, bias_uniform
+from siren.initializer import siren_init, siren_init_first, bias_uniform
 from siren import layer
+import time
 
 def create_mlp(input_dim, num_channels, output_dim, omega = 30):
     modules = []
     modules.append(layer.Dense(num_channels[0], W_init = siren_init_first(), b_init=bias_uniform()))
-    modules.append(layer.SirenSin(omega))
+    modules.append(layer.Sine(omega))
     for nc in num_channels:
         modules.append(layer.Dense(nc, W_init = siren_init(omega = omega), b_init=bias_uniform()))
-        modules.append(layer.SirenSin(omega))
+        modules.append(layer.Sine(omega))
 
     modules.append(layer.Dense(output_dim, W_init = siren_init(omega = omega), b_init=bias_uniform()))
     net_init_random, net_apply = stax.serial(*modules)

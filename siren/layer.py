@@ -1,6 +1,7 @@
 from jax import numpy as jnp
 from jax.nn.initializers import glorot_normal
 from jax.experimental import stax
+from jax import random
 
 def Dense(out_dim, W_init=glorot_normal(), b_init=glorot_normal()):
     """(Custom) Layer constructor function for a dense (fully-connected) layer."""
@@ -20,4 +21,4 @@ def sine_with_gain(gain):
         return jnp.sin(input * gain)
 
 def Sine(gain):
-    return stax.elementwize(sine_with_gain(gain))
+    return stax.elementwise(sine_with_gain(gain))

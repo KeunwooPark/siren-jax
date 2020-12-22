@@ -1,5 +1,6 @@
 from PIL import Image
 import numpy as np
+from jax import numpy as jnp
 
 class ImageLoader:
     def __init__(self, img_path, size=0, do_batch=False, batch_size=256):
@@ -13,8 +14,8 @@ class ImageLoader:
         self.do_batch = do_batch
         self.batch_size = batch_size
 
-        x, y = image_to_xy(self.normalized_img)
-        self.batched_x, self.batched_y, self.num_batches = split_to_batches(x, y, size = batch_size)
+        self.x, self.y = image_to_xy(self.normalized_img)
+        self.create_batches()
         self.cursor = 0
 
     def __iter__(self):
@@ -32,9 +33,12 @@ class ImageLoader:
     def __len__(self):
         return self.num_batches
 
+    def create_batches(self):
+        self.batched_x, self.batched_y, self.num_batches = split_to_batches(self.x, self.y, size = self.batch_size)
+
     def get(self, i):
-        x = self.batched_x[i]
-        y = self.batched_y[i]
+        x = jnp.array(self.batched_x[i])
+        y = jnp.array(self.batched_y[i])
         data = {'input': x, 'output': y}
         return data
 
@@ -44,16 +48,24 @@ def normalize_img(img_array):
 def unnormalize_img(img_array):
     return img_array * 0.5 + 0.5
 
+def convert_to_normalized_index(width, height):
+    normalized_index = []
+    for i in np.linspace(-1, 1, width):
+        for j in np.linspace(-1, 1, height):
+            normalized_index.append([i, j])
+
+    return np.array(normalized_index)
+
 def image_to_xy(img_array):
     width, height, channel = img_array.shape
-    x = []
     y = []
+
+    x = convert_to_normalized_index(width, height)
 
     for i in range(width):
         for j in range(height):
-            x.append([i, j])
             y.append(img_array[i, j])
-    return np.array(x), np.array(y)
+    return x, np.array(y)
 
 def split_to_batches(x, y, size = 0, shuffle=True):
     if shuffle:

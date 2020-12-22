@@ -14,7 +14,7 @@ def siren_init_first(in_axis=-2, out_axis=-1, dtype=jnp.float32):
     def init(key, shape, dtype=dtype):
         fan_in, fan_out = _compute_fans(shape, in_axis, out_axis)
         variance = 1 / fan_in
-    return random.uniform(key, shape, dtype, minval = -variance, maxval = variance)
+        return random.uniform(key, shape, dtype, minval = -variance, maxval = variance)
 
     return init
 
