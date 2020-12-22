@@ -38,19 +38,21 @@ def minimize_with_jax_optim(name, model, data_loader, lr, epoch, print_iter, cal
 
     timestamp = time.perf_counter()
     iter = 0
+    last_data = None
     for _ in range(epoch):
         data_loader.create_batches()
         for data in data_loader:
             opt_state = step(iter, opt_state, data)
             iter += 1
             training_state.iter = iter
+            last_data = data
             if (iter) % print_iter == 0:
                 param = get_params(opt_state)
                 training_state.params = param
                 duration_per_iter = (time.perf_counter() - timestamp) / interm_iter
                 training_state.duration_per_iter = duration_per_iter
                 timestamp = time.perf_counter()
-                callback(training_state)
+                callback(data, training_state)
 
     # when # of iter cannot be divided into print_iter
     if not iter % print_iter == 0:
@@ -59,6 +61,6 @@ def minimize_with_jax_optim(name, model, data_loader, lr, epoch, print_iter, cal
         training_state.params = param
         residual_iter = iter % print_iter
         duration_per_iter = (time.perf_counter() - timestamp) / residual_iter
-        callback(training_state)
+        callback(last_data, training_state)
 
     return training_state

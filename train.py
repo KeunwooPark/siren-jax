@@ -30,11 +30,14 @@ def main(args):
     def callback(data, training_state):
         log = {}
         loss_func = model.get_loss_func(data)
-        log['loss'] = loss_func(training_state.params)
+        log['loss'] = float(loss_func(training_state.params))
         log['iter'] = training_state.iter
         log['duration_per_iter'] = training_state.duration_per_iter
         logger.save_log(log)
+        print(log)
 
+    print("Training Start")
+    print(vars(args))
     minimize_with_jax_optim('adam', model, image_loader, args.lr, args.epoch, args.print_iter, callback)
      
 
