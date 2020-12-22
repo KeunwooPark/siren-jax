@@ -31,23 +31,27 @@ class Logger:
         self.result_path = result_path
 
     def get_log_file(self):
-        loss_path = self.result_path.joinpath("logges.txt")
+        loss_path = self.result_path / "logges.txt"
         return open(str(loss_path), "w")
 
     def save_option(self, option):
-        setting_path = self.result_path.joinpath("option.txt")
+        setting_path = self.result_path / "option.txt"
         with open(str(setting_path), "w") as f:
             yaml_obj = json.dumps(option)
             f.write(yaml_obj)
 
-    def save_model(self, model):
-        model_path = self.result_path.joinpath("model.pkl")
+    def save_net_params(self, params):
+        model_path = self.result_path / "params.pkl"
         with open(str(model_path), "wb") as f:
-            pickle.dump(model, f)
+            pickle.dump(params, f)
 
     def save_log(self, log):
         json_obj = json.dumps(log)
         self.log_file.write(json_obj + "\n")
+
+    def save_image(self, name, pil_img):
+        img_path = self.result_path / (name+".png")
+        pil_img.save(str(img_path))
 
 
 class Loader:

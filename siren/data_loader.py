@@ -34,7 +34,10 @@ class ImageLoader:
         return self.num_batches
 
     def create_batches(self):
-        self.batched_x, self.batched_y, self.num_batches = split_to_batches(self.x, self.y, size = self.batch_size)
+        if not self.do_batch:
+            self.batched_x, self.batched_y, self.num_batches = split_to_batches(self.x, self.y, size=0, shuffle=False)
+        else:
+            self.batched_x, self.batched_y, self.num_batches = split_to_batches(self.x, self.y, size = self.batch_size)
 
     def get(self, i):
         x = jnp.array(self.batched_x[i])
@@ -42,11 +45,16 @@ class ImageLoader:
         data = {'input': x, 'output': y}
         return data
 
+    def get_resized_image(self):
+        img = unnormalize_img(self.normalized_img)
+        return Image.fromarray(np.uint8(img))
+        
 def normalize_img(img_array):
+    img_array = img_array / 255
     return (img_array - 0.5) / 0.5
 
 def unnormalize_img(img_array):
-    return img_array * 0.5 + 0.5
+    return (img_array * 0.5 + 0.5) * 255
 
 def convert_to_normalized_index(width, height):
     normalized_index = []

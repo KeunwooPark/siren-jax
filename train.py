@@ -1,6 +1,6 @@
 import argparse
 from siren.data_loader import ImageLoader
-from siren.optimizer import minimize_with_jax_optim
+from siren.optimizer import JaxOptimizer
 from siren.model import ImageModel
 from util.log import Logger
 
@@ -14,7 +14,7 @@ def parse_args():
     parser.add_argument('--epoch', type=int, default=1, help="number of epochs")
     parser.add_argument('--lr', type=float, default=0.0002, help="learning rate")
     parser.add_argument('--print_iter', type=int, default=1000, help="when to print intermediate info")
-    parser.add_argument('--layers', type=str, default='128,128,128', help="layers of multi layer perceptron")
+    parser.add_argument('--layers', type=str, default='256,256,256,256,256', help="layers of multi layer perceptron")
 
     args = parser.parse_args()
     return args
@@ -23,23 +23,40 @@ def main(args):
     layers = [int(l) for l in args.layers.split(',')]
     model = ImageModel(layers)
     image_loader = ImageLoader(args.file, args.size, args.do_batch, args.batch_size)
+    optimizer = JaxOptimizer('adam', model, args.lr)
+
     name = args.file.split('.')[0]
     logger = Logger(name)
     logger.save_option(vars(args))
+    
+    input_img = image_loader.get_resized_image()
+    logger.save_image("input", input_img)
 
-    def callback(data, training_state):
+    def interm_callback(i, data, params):
         log = {}
         loss_func = model.get_loss_func(data)
-        log['loss'] = float(loss_func(training_state.params))
-        log['iter'] = training_state.iter
-        log['duration_per_iter'] = training_state.duration_per_iter
+        log['loss'] = float(loss_func(params))
+        log['iter'] = i
         logger.save_log(log)
         print(log)
 
     print("Training Start")
     print(vars(args))
-    minimize_with_jax_optim('adam', model, image_loader, args.lr, args.epoch, args.print_iter, callback)
-     
+
+    last_data = None
+    for _ in range(args.epoch):
+        image_loader = ImageLoader(args.file, args.size, args.do_batch, args.batch_size)
+        for data in image_loader:
+            optimizer.step(data)
+            last_data = data
+            if optimizer.iter_cnt % args.print_iter == 0:
+                interm_callback(optimizer.iter_cnt, data, optimizer.get_optimized_params())
+
+
+    if not optimizer.iter_cnt % args.print_iter == 0:
+        interm_callback(optimizer.iter_cnt, data, optimizer.get_optimized_params())
+
+    logger.save_net_params(optimizer.get_optimized_params())
 
 if __name__ == "__main__":
     args = parse_args()
