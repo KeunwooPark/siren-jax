@@ -5,11 +5,12 @@ from jax import numpy as jnp
 class ImageLoader:
     def __init__(self, img_path, size=0, do_batch=False, batch_size=256):
         img = Image.open(img_path)
-
+        
         if size > 0:
             img = img.resize((size, size))
 
         self.normalized_img = normalize_img(np.array(img))
+        self.original_pil_img = img
 
         self.do_batch = do_batch
         self.batch_size = batch_size

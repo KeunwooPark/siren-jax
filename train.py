@@ -31,6 +31,7 @@ def main(args):
     logger.save_option(vars(args))
     
     input_img = image_loader.get_resized_image()
+    logger.save_image("original", image_loader.original_pil_img)
     logger.save_image("input", input_img)
 
     timer = Timer()

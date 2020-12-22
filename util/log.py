@@ -39,8 +39,8 @@ class Logger:
     def save_option(self, option):
         setting_path = self.result_path / "option.txt"
         with open(str(setting_path), "w") as f:
-            yaml_obj = json.dumps(option)
-            f.write(yaml_obj)
+            json_obj = json.dumps(option)
+            f.write(json_obj)
 
     def save_net_params(self, params):
         model_path = self.result_path / "params.pkl"
@@ -79,20 +79,24 @@ class Loader:
 
         if not self.results_path.exists():
             raise ValueError("No data with name {}".format(name))
+    
+    def load_option(self):
+        option_path = self.results_path / "option.txt"
+        option = None
+        with open(str(option_path)) as f:
+            lines = f.readlines()
+            option = json.loads(lines[0]) # there should be only one line
 
-        self._create_snapshot_path()
+        return option
+
 
     def load_params(self):
-        model_path = self.results_path.joinpath("model.pkl")
+        model_path = self.results_path.joinpath("params.pkl")
         model = None
         with open(str(model_path), "rb") as f:
             model = pickle.load(f)
 
         return model
-
-    def load_option(self):
-        option_path = self.results_path.joinpath("option.yaml")
-        return load_yaml_option(option_path)
 
     def load_log(self):
         loss_path = self.results_path.joinpath("logges.txt")
