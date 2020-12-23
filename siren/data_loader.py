@@ -93,13 +93,6 @@ def xy_to_image_array(x, y, width, height):
     img_array = np.zeros((width, height, num_channel))
     
     img_array[w_idx, h_idx] = y
-    """
-    num_pixel = x.shape[0]
-    for i in range(num_pixel):
-        w = w_idx[i]
-        h = h_idx[i]
-        img_array[w, h] = y[i]
-    """
 
     return img_array
         

@@ -4,6 +4,7 @@ import json
 import os
 from collections import defaultdict
 from util.plot import plot_losses
+from PIL import Image
 
 def get_root_path():
     return pathlib.Path(__file__).parents[1]
@@ -90,7 +91,6 @@ class Loader:
 
         return option
 
-
     def load_params(self):
         model_path = self.results_path.joinpath("params.pkl")
         model = None
@@ -102,6 +102,10 @@ class Loader:
     def get_image_filename(self, name):
         image_path = self.results_path / (name + ".png")
         return str(image_path)
+
+    def load_pil_image(self, name):
+        fn = self.get_image_filename(name)
+        return Image.open(fn)
 
     def load_log(self):
         loss_path = self.results_path.joinpath("logges.txt")

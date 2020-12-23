@@ -50,8 +50,15 @@ def main(args):
     img_array = unnormalize_img(img_array)
     img = Image.fromarray(np.uint8(img_array))
     
-    output_name = "test_{}x{}".format(width, height)
+    output_name = "net_{}x{}".format(width, height)
     logger.save_image(output_name, img)
+
+    # PIL resize as reference
+    input_pil_img = loader.load_pil_image("input")
+    resized_pil = input_pil_img.resize((width, height))
+    pil_output_name = "pil_{}x{}".format(width, height)
+    logger.save_image(pil_output_name, resized_pil)
+    
 
 if __name__ == "__main__":
     args = parse_args()
