@@ -123,6 +123,6 @@ def shuffle_arrays_in_same_order(arrays):
 
     shuffled_arrays = []
     for array in arrays:
-        shuffled_arrays.append(array[indices])
+        shuffled_arrays.append(array[indicies])
 
     return shuffled_arrays

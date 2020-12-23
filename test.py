@@ -38,7 +38,7 @@ def main(args):
     x = convert_to_normalized_index(width, height)
     
     # divide input to batches, because usually input for the test is really large
-    batched_x, _ = split_to_batches(x, size=256)
+    batched_x, _ = split_to_batches(x, size=2048)
     batched_y = []
     for bx in batched_x:
         y = model.forward(bx)
