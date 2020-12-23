@@ -13,7 +13,7 @@ def parse_args():
     parser.add_argument('--do_batch', action='store_true', default=False, help="separate input to batches")
     parser.add_argument('--batch_size', type=int, default=256, help="the size of batches. only valid when --do_batch")
     parser.add_argument('--epoch', type=int, default=5000, help="number of epochs")
-    parser.add_argument('--lr', type=float, default=0.0002, help="learning rate")
+    parser.add_argument('--lr', type=float, default=0.00002, help="learning rate")
     parser.add_argument('--print_iter', type=int, default=100, help="when to print intermediate info")
     parser.add_argument('--layers', type=str, default='256,256,256,256,256', help="layers of multi layer perceptron")
 

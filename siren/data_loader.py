@@ -5,7 +5,6 @@ from jax import numpy as jnp
 class ImageLoader:
     def __init__(self, img_path, size=0, do_batch=False, batch_size=256):
         img = Image.open(img_path)
-        
         self.original_pil_img = img
 
         if size > 0:
@@ -37,9 +36,13 @@ class ImageLoader:
 
     def create_batches(self):
         if not self.do_batch:
-            self.batched_x, self.batched_y, self.num_batches = split_to_batches(self.x, self.y, size=0, shuffle=False)
+            self.batched_x, self.num_batches = split_to_batches(self.x, size=0)
+            self.batched_y, self.num_batches = split_to_batches(self.y, size=0)
         else:
-            self.batched_x, self.batched_y, self.num_batches = split_to_batches(self.x, self.y, size = self.batch_size)
+            shuffled_x, shuffled_y = shuffle_arrays_in_same_order([self.x, self.y])
+            self.batched_x, self.num_batches = split_to_batches(self.x, size = self.batch_size)
+            self.batched_y, self.num_batches = split_to_batches(self.y, size = self.batch_size)
+
 
     def get(self, i):
         x = jnp.array(self.batched_x[i])
@@ -101,27 +104,25 @@ def xy_to_image_array(x, y, width, height):
     return img_array
         
 
-def split_to_batches(x, y, size = 0, shuffle=True):
-    if shuffle:
-        x = shuffle_array(x)
-        y = shuffle_array(y)
-
+def split_to_batches(array, size = 0):
     if size == 0:
         num_batches = 1
-        return [x], [y], num_batches
+        return [array], num_batches
 
-    num_sample = x.shape[0]
-    num_batches = num_sample // size
-    if not num_sample % size == 0:
-        num_batches += 1
+    num_sample = array.shape[0]
+    num_batches = int(np.ceil(num_sample / size))
+    batched = np.array_split(array, num_batches)
 
-    batched_x = np.split(x, num_batches)
-    batched_y = np.split(y, num_batches)
+    return batched, num_batches
 
-    return batched_x, batched_y, num_batches
-
-def shuffle_array(array):
-    size = array.shape[0]
+def shuffle_arrays_in_same_order(arrays):
+    size = arrays[0].shape[0]
     indicies = np.arange(size, dtype=np.int)
+
     np.random.shuffle(indicies)
-    return array[indicies]
+
+    shuffled_arrays = []
+    for array in arrays:
+        shuffled_arrays.append(array[indices])
+
+    return shuffled_arrays

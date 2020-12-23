@@ -26,4 +26,5 @@ class ImageModel:
         return self.net.net_params
 
     def forward(self, x):
+        x = jnp.array(x, dtype=jnp.float32)
         return self.net.f(self.net.net_params, x)

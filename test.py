@@ -3,7 +3,7 @@ import numpy as np
 
 from siren.model import ImageModel
 from util.log import Loader, Logger
-from siren.data_loader import convert_to_normalized_index, unnormalize_img, xy_to_image_array
+from siren.data_loader import convert_to_normalized_index, unnormalize_img, xy_to_image_array, split_to_batches
 from PIL import Image
 
 def parse_args():
@@ -36,13 +36,22 @@ def main(args):
         height = args.size
 
     x = convert_to_normalized_index(width, height)
+    
+    # divide input to batches, because usually input for the test is really large
+    batched_x, _ = split_to_batches(x, size=256)
+    batched_y = []
+    for bx in batched_x:
+        y = model.forward(bx)
+        batched_y.append(y)
 
-    y = model.forward(x)
+    y = np.vstack(batched_y)
 
     img_array = xy_to_image_array(x, y, width, height)
     img_array = unnormalize_img(img_array)
     img = Image.fromarray(np.uint8(img_array))
-    logger.save_image("test", img)
+    
+    output_name = "test_{}x{}".format(width, height)
+    logger.save_image(output_name, img)
 
 if __name__ == "__main__":
     args = parse_args()
