@@ -9,8 +9,9 @@ def get_root_path():
     return pathlib.Path(__file__).parents[1]
 
 class Logger:
-    def __init__(self, name):
+    def __init__(self, name, create_if_exists=True):
         self.name = name
+        self.create_if_exists = create_if_exists
         self.create_paths(name)
         self.log_file = self.get_log_file()
         self.log_for_plot = defaultdict(list)
@@ -24,7 +25,7 @@ class Logger:
         result_path = results_root.joinpath(name)
 
         dup_cnt = 0
-        while result_path.exists():
+        while result_path.exists() and self.create_if_exists:
             dup_cnt += 1
             new_name = "{}{}".format(name, dup_cnt)
             result_path = results_root.joinpath(new_name)
@@ -97,6 +98,10 @@ class Loader:
             model = pickle.load(f)
 
         return model
+
+    def get_image_filename(self, name):
+        image_path = self.results_path / (name + ".png")
+        return str(image_path)
 
     def load_log(self):
         loss_path = self.results_path.joinpath("logges.txt")

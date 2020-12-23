@@ -24,3 +24,6 @@ class ImageModel:
 
     def get_params(self):
         return self.net.net_params
+
+    def forward(self, x):
+        return self.net.f(self.net.net_params, x)

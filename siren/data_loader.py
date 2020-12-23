@@ -6,16 +6,17 @@ class ImageLoader:
     def __init__(self, img_path, size=0, do_batch=False, batch_size=256):
         img = Image.open(img_path)
         
+        self.original_pil_img = img
+
         if size > 0:
             img = img.resize((size, size))
 
         self.normalized_img = normalize_img(np.array(img))
-        self.original_pil_img = img
 
         self.do_batch = do_batch
         self.batch_size = batch_size
 
-        self.x, self.y = image_to_xy(self.normalized_img)
+        self.x, self.y = image_array_to_xy(self.normalized_img)
         self.create_batches()
         self.cursor = 0
 
@@ -65,7 +66,7 @@ def convert_to_normalized_index(width, height):
 
     return np.array(normalized_index)
 
-def image_to_xy(img_array):
+def image_array_to_xy(img_array):
     width, height, channel = img_array.shape
     y = []
 
@@ -75,6 +76,30 @@ def image_to_xy(img_array):
         for j in range(height):
             y.append(img_array[i, j])
     return x, np.array(y)
+
+def xy_to_image_array(x, y, width, height):
+    w_idx = ((x[:, 0] + 1) / 2) * (width-1)
+    h_idx = ((x[:, 1] + 1) / 2) * (height-1)
+
+    w_idx = np.around(w_idx).astype(np.int)
+    h_idx = np.around(h_idx).astype(np.int)
+
+    #ww, hh = np.meshgrid(w_idx, h_idx)
+    
+    num_channel=y.shape[-1]
+    img_array = np.zeros((width, height, num_channel))
+    
+    img_array[w_idx, h_idx] = y
+    """
+    num_pixel = x.shape[0]
+    for i in range(num_pixel):
+        w = w_idx[i]
+        h = h_idx[i]
+        img_array[w, h] = y[i]
+    """
+
+    return img_array
+        
 
 def split_to_batches(x, y, size = 0, shuffle=True):
     if shuffle:
