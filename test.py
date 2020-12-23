@@ -23,7 +23,7 @@ def main(args):
     layers = [int(l) for l in option['layers'].split(',')]
     params = loader.load_params()
 
-    model = ImageModel(layers)
+    model = ImageModel(layers, option['omega'])
     model.update_net_params(params)
     
     if args.comp_orig:
