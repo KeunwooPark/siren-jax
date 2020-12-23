@@ -12,17 +12,18 @@ def parse_args():
     parser.add_argument('--size', type=int, default=256, help="resize the image to this (squre) shape. 0 if not goint go resize")
     parser.add_argument('--do_batch', action='store_true', default=False, help="separate input to batches")
     parser.add_argument('--batch_size', type=int, default=6144, help="the size of batches. only valid when --do_batch")
-    parser.add_argument('--epoch', type=int, default=5000, help="number of epochs")
+    parser.add_argument('--epoch', type=int, default=10000, help="number of epochs")
     parser.add_argument('--lr', type=float, default=0.00002, help="learning rate")
-    parser.add_argument('--print_iter', type=int, default=1000, help="when to print intermediate info")
+    parser.add_argument('--print_iter', type=int, default=200, help="when to print intermediate info")
     parser.add_argument('--layers', type=str, default='512,512,512,512,512', help="layers of multi layer perceptron")
+    parser.add_argument('--omega', type=float, default=60, help="omega value of Siren")
 
     args = parser.parse_args()
     return args
 
 def main(args):
     layers = [int(l) for l in args.layers.split(',')]
-    model = ImageModel(layers)
+    model = ImageModel(layers, args.omega)
     image_loader = ImageLoader(args.file, args.size, args.do_batch, args.batch_size)
     optimizer = JaxOptimizer('adam', model, args.lr)
 

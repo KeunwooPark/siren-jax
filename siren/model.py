@@ -4,8 +4,8 @@ from siren.network import Siren
 from siren.optimizer import minimize_with_jax_optim
 
 class ImageModel:
-    def __init__(self, layers):
-        self.net = Siren(input_dim =2, layers=layers, output_dim = 3)
+    def __init__(self, layers, omega):
+        self.net = Siren(2, layers, 3, omega)
         self.loss_func = self.set_loss_func()
 
     def set_loss_func(self):

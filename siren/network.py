@@ -32,9 +32,9 @@ def create_random_generator(rng_seed=None):
 
 class Siren:
     def __init__(
-        self, input_dim, layers, output_dim, rng_seed=None
+        self, input_dim, layers, output_dim, omega, rng_seed=None
     ):
-        net_params, net_apply = create_mlp(input_dim, layers, output_dim)
+        net_params, net_apply = create_mlp(input_dim, layers, output_dim, omega)
 
         self.net_params = net_params
         self.net_apply = net_apply
