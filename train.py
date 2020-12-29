@@ -1,5 +1,5 @@
 import argparse
-from siren.data_loader import ColorImageLoader
+from siren.data_loader import ColorImageLoader, GradientImageLoader
 from siren.optimizer import JaxOptimizer
 from siren.model import ColorImageModel, GradientImageModel
 from util.log import Logger
