@@ -1,7 +1,7 @@
 import argparse
-from siren.data_loader import ImageLoader
+from siren.data_loader import ColorImageLoader
 from siren.optimizer import JaxOptimizer
-from siren.model import ImageModel
+from siren.model import ColorImageModel
 from util.log import Logger
 from util.timer import Timer
 
@@ -23,8 +23,8 @@ def parse_args():
 
 def main(args):
     layers = [int(l) for l in args.layers.split(',')]
-    model = ImageModel(layers, args.omega)
-    image_loader = ImageLoader(args.file, args.size, args.do_batch, args.batch_size)
+    model = ColorImageModel(layers, args.omega)
+    image_loader = ColorImageLoader(args.file, args.size, args.do_batch, args.batch_size)
     optimizer = JaxOptimizer('adam', model, args.lr)
 
     name = args.file.split('.')[0]
@@ -52,7 +52,7 @@ def main(args):
 
     last_data = None
     for _ in range(args.epoch):
-        image_loader = ImageLoader(args.file, args.size, args.do_batch, args.batch_size)
+        image_loader = ColorImageLoader(args.file, args.size, args.do_batch, args.batch_size)
         for data in image_loader:
             optimizer.step(data)
             last_data = data

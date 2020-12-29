@@ -2,7 +2,7 @@ from PIL import Image
 import numpy as np
 from jax import numpy as jnp
 
-class ImageLoader:
+class ColorImageLoader:
     def __init__(self, img_path, size=0, do_batch=False, batch_size=256):
         img = Image.open(img_path)
         self.original_pil_img = img
