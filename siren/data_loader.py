@@ -3,7 +3,7 @@ import numpy as np
 from jax import numpy as jnp
 
 class ColorImageLoader:
-    def __init__(self, img_path, size=0, do_batch=False, batch_size=256):
+    def __init__(self, img_path, size=0, batch_size=0):
         img = Image.open(img_path)
         self.original_pil_img = img
 
@@ -12,7 +12,7 @@ class ColorImageLoader:
 
         self.normalized_img = normalize_img(np.array(img))
 
-        self.do_batch = do_batch
+        self.do_batch = batch_size != 0
         self.batch_size = batch_size
 
         self.x, self.y = image_array_to_xy(self.normalized_img)
