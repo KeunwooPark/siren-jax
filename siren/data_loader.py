@@ -1,6 +1,7 @@
-from PIL import Image
+from PIL import Image, ImageOps
 import numpy as np
 from jax import numpy as jnp
+from util.image import gradient
 
 class ColorImageLoader:
     def __init__(self, img_path, size=0, batch_size=0):
@@ -10,12 +11,12 @@ class ColorImageLoader:
         if size > 0:
             img = img.resize((size, size))
 
-        self.normalized_img = normalize_img(np.array(img))
+        self.input_img = normalize_img(np.array(img))
 
         self.do_batch = batch_size != 0
         self.batch_size = batch_size
 
-        self.x, self.y = image_array_to_xy(self.normalized_img)
+        self.x, self.y = image_array_to_xy(self.input_img)
         self.create_batches()
         self.cursor = 0
 
@@ -50,9 +51,35 @@ class ColorImageLoader:
         data = {'input': x, 'output': y}
         return data
 
-    def get_resized_image(self):
-        img = unnormalize_img(self.normalized_img)
+    def get_input_image(self):
+        img = unnormalize_img(self.input_img)
         return Image.fromarray(np.uint8(img))
+
+class GradientImageLoader(ColorImageLoader):
+    def __init__(self, img_path, size=0, batch_size=0):
+        img = Image.open(img_path)
+        img = ImageOps.grayscale(img)
+        self.original_pil_img = img
+
+        if size > 0:
+            img = img.resize((size, size))
+
+        img = gradient(np.array(img))
+        self.input_img = img * 100
+
+        self.do_batch = batch_size != 0
+        self.batch_size = batch_size
+
+        self.x, self.y = image_array_to_xy(self.input_img)
+        self.create_batches()
+        self.cursor = 0
+
+    def get_input_image(self):
+        max_val = np.max(self.input_img)
+        min_val = np.max(self.input_img)
+        img = (self.input_img - min_val) / (max_val - min_val)
+        img = img * 255
+        return Image.fromarray(np.unit8(img))
         
 def normalize_img(img_array):
     img_array = img_array / 255

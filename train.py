@@ -1,7 +1,7 @@
 import argparse
 from siren.data_loader import ColorImageLoader
 from siren.optimizer import JaxOptimizer
-from siren.model import ColorImageModel
+from siren.model import ColorImageModel, GradientImageModel
 from util.log import Logger
 from util.timer import Timer
 
@@ -9,6 +9,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Train SirenHighres')
 
     parser.add_argument('--file', type=str, help="location of the file", required=True)
+    parser.add_argument('--type', type=str, default="color", choices=["color","gradient", "laplace"], help="training image type")
     parser.add_argument('--size', type=int, default=256, help="resize the image to this (squre) shape. 0 if not goint go resize")
     parser.add_argument('--batch_size', type=int, default=0, help="the size of batches. 0 for single batch")
     parser.add_argument('--epoch', type=int, default=10000, help="number of epochs")
@@ -22,15 +23,18 @@ def parse_args():
 
 def main(args):
     layers = [int(l) for l in args.layers.split(',')]
-    model = ColorImageModel(layers, args.omega)
-    image_loader = ColorImageLoader(args.file, args.size, args.batch_size)
+
+    Model, DataLoader = get_model_and_loader_cls_by_type(args.type)
+
+    model = Model(layers, args.omega)
+    image_loader = DataLoader(args.file, args.size, args.batch_size)
     optimizer = JaxOptimizer('adam', model, args.lr)
 
     name = args.file.split('.')[0]
     logger = Logger(name)
     logger.save_option(vars(args))
     
-    input_img = image_loader.get_resized_image()
+    input_img = image_loader.get_input_image()
     logger.save_image("original", image_loader.original_pil_img)
     logger.save_image("input", input_img)
 
@@ -51,7 +55,7 @@ def main(args):
 
     last_data = None
     for _ in range(args.epoch):
-        image_loader = ColorImageLoader(args.file, args.size, args.batch_size)
+        image_loader = DataLoader(args.file, args.size, args.batch_size)
         for data in image_loader:
             optimizer.step(data)
             last_data = data
@@ -64,6 +68,12 @@ def main(args):
 
     logger.save_net_params(optimizer.get_optimized_params())
     logger.save_losses_plot()
+
+def get_model_and_loader_cls_by_type(train_type):
+    if train_type == "color":
+        return (ColorImageModel, ColorImageLoader)
+    elif train_type == "gradient":
+        return (GradientImageModel, GradientImageLoader)
 
 if __name__ == "__main__":
     args = parse_args()

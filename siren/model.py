@@ -49,12 +49,16 @@ class ColorImageModel(BaseImageModel):
 
         return loss_func
 
-    def update_net_params(self, params):
-        self.net.net_params = params
+class GradientImageModel(BaseImageModel):
+    def create_network(self, layers, omega):
+        return Siren(2, layers, 1, omega)
 
-    def get_params(self):
-        return self.net.net_params
+    def create_loss_func(self):
+        @jit
+        def loss_func(net_params, data):
+            x = data['input']
+            y = data['output']
+            output = self.net.df(net_params, x)
+            return jnp.mean((output - y)**2)
 
-    def forward(self, x):
-        x = jnp.array(x, dtype=jnp.float32)
-        return self.net.f(self.net.net_params, x)
+        return loss_func
