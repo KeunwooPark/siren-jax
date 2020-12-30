@@ -80,7 +80,6 @@ def estimate_and_save_gradient(model, width, height, logger):
 
     y = np.vstack(batched_y)
     y = y.squeeze()
-    print(np.sum(np.abs(y)))
     y = xy_to_image_array(x, y, width, height)
     grad_img = gradient_to_img(y)
     output_name = "grad_{}x{}".format(width, height)

@@ -27,10 +27,11 @@ def gradient_to_img(gradient):
 
     gm_min = np.percentile(gm, 5)
     gm_max = np.percentile(gm, 95)
-
+    
     gm = (gm - gm_min) / (gm_max - gm_min)
     gm = np.clip(gm, 0, 1)
 
     hsv[:, :, 2] = gm
     rgb = colors.hsv_to_rgb(hsv)
+    rgb *= 255
     return rgb
