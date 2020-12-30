@@ -3,6 +3,14 @@ import numpy as np
 from jax import numpy as jnp
 from util.image import gradient, gradient_to_img
 
+def get_data_loader_cls_by_type(type):
+    if type == 'color':
+        return ColorImageLoader
+    elif type == 'gradient':
+        return GradientImageLoader
+
+    raise ValueError("Wrong data loader type: {}".format(type))
+
 class ColorImageLoader:
     def __init__(self, img_path, size=0, batch_size=0):
         img = Image.open(img_path)

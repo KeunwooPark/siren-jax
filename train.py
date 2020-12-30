@@ -1,7 +1,7 @@
 import argparse
-from siren.data_loader import ColorImageLoader, GradientImageLoader
+from siren.data_loader import get_data_loader_cls_by_type
 from siren.optimizer import JaxOptimizer
-from siren.model import ColorImageModel, GradientImageModel
+from siren.model import get_model_cls_by_type
 from util.log import Logger
 from util.timer import Timer
 
@@ -23,8 +23,9 @@ def parse_args():
 
 def main(args):
     layers = [int(l) for l in args.layers.split(',')]
-
-    Model, DataLoader = get_model_and_loader_cls_by_type(args.type)
+    
+    Model = get_model_cls_by_type(args.type)
+    DataLoader = get_data_loader_cls_by_type(args.type)
 
     model = Model(layers, args.omega)
     image_loader = DataLoader(args.file, args.size, args.batch_size)
@@ -68,12 +69,6 @@ def main(args):
 
     logger.save_net_params(optimizer.get_optimized_params())
     logger.save_losses_plot()
-
-def get_model_and_loader_cls_by_type(train_type):
-    if train_type == "color":
-        return (ColorImageModel, ColorImageLoader)
-    elif train_type == "gradient":
-        return (GradientImageModel, GradientImageLoader)
 
 if __name__ == "__main__":
     args = parse_args()

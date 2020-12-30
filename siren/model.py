@@ -4,6 +4,14 @@ from siren.network import Siren
 from siren.optimizer import minimize_with_jax_optim
 from abc import ABC, abstractmethod
 
+def get_model_cls_by_type(type):
+    if type == 'color':
+        return ColorImageModel
+    elif type == 'gradient':
+        return GradientImageModel
+    
+    raise ValueError("Wrong model type {}".format(type))
+
 class BaseImageModel(ABC):
     def __init__(self, layers, omega):
         self.net = self.create_network(layers, omega)
