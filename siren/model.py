@@ -59,6 +59,7 @@ class GradientImageModel(BaseImageModel):
             x = data['input']
             y = data['output']
             output = self.net.df(net_params, x)
+            output = output.squeeze(1)
             return jnp.mean((output - y)**2)
 
         return loss_func

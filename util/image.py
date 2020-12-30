@@ -1,6 +1,11 @@
-import cv2
+from scipy import ndimage
+import numpy as np
 
 def gradient(img):
-    sobel_x = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=5)
-    sobel_y = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=5)
-    return (sobel_x + sobel_y) / 2
+    grad_x = ndimage.sobel(img, axis=1)
+    grad_y = ndimage.sobel(img, axis=2)
+    
+    return np.concatenate([grad_x, grad_y], axis = -1)
+
+def gradient_to_img(gradient):
+    pass

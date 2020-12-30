@@ -64,9 +64,9 @@ class GradientImageLoader(ColorImageLoader):
         if size > 0:
             img = img.resize((size, size))
 
-        img = gradient(np.array(img, dtype=np.float))
-        img = np.expand_dims(img, axis=-1)
-        self.input_img = img * 100
+        img = np.expand_dims(np.array(img), axis=-1)
+        img = gradient(img)
+        self.input_img = img * 1
 
         self.do_batch = batch_size != 0
         self.batch_size = batch_size
