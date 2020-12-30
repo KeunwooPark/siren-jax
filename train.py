@@ -28,7 +28,7 @@ def main(args):
     Model = get_model_cls_by_type(args.type)
     DataLoader = get_data_loader_cls_by_type(args.type)
 
-    data_loader = DataLoader(args.file, args.size, args.batch_size)
+    data_loader = DataLoader(args.file, args.nc, args.size, args.batch_size)
     model = Model(layers, args.nc, args.omega)
     optimizer = JaxOptimizer('adam', model, args.lr)
 

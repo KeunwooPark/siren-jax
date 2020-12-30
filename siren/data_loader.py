@@ -2,6 +2,7 @@ from PIL import Image
 import numpy as np
 from jax import numpy as jnp
 from util.image import gradient, gradient_to_img
+from abc import ABC, abstractmethod
 
 def get_data_loader_cls_by_type(type):
     if type == 'normal':
@@ -11,7 +12,7 @@ def get_data_loader_cls_by_type(type):
 
     raise ValueError("Wrong data loader type: {}".format(type))
 
-class NormalImageLoader:
+class BaseImageLoader(ABC):
     def __init__(self, img_path, num_channels, size=0, batch_size=0):
         img = Image.open(img_path)
         self.original_pil_img = img
@@ -27,7 +28,8 @@ class NormalImageLoader:
             img_array = np.array(img)
             img_array = np.expand_dims(img_array, axis = -1)
 
-        self.input_img = normalize_img(img_array)
+        #self.input_img = normalize_img(img_array)
+        self.input_img = self.create_input_img(img_array)
      
         self.do_batch = batch_size != 0
         self.batch_size = batch_size
@@ -39,6 +41,10 @@ class NormalImageLoader:
         self.num_channel = self.input_img.shape[-1]
         if len(self.input_img.shape) == 2:
             self.num_channel = 1
+
+    @abstractmethod
+    def create_input_img(self):
+        pass
             
     def __iter__(self):
         return self
@@ -71,41 +77,26 @@ class NormalImageLoader:
         data = {'input': x, 'output': y}
         return data
 
+    @abstractmethod
+    def get_input_image(self):
+        pass
+        
+class NormalImageLoader(BaseImageLoader):
+    def create_input_img(self, img_array):
+        return normalize_img(img_array)
+
     def get_input_image(self):
         img = unnormalize_img(self.input_img)
         img = img.squeeze()
         return Image.fromarray(np.uint8(img))
 
-class GradientImageLoader(NormalImageLoader):
-    def __init__(self, img_path, num_channels, size=0, batch_size=0):
-        if num_channels != 1:
-            raise ValueError("num_channels should be 1")
-        img = Image.open(img_path)
-        img = img.convert('LA')
-        self.original_pil_img = img
+class GradientImageLoader(BaseImageLoader):
+    def create_input_img(self, img_array):
+        img = normalize_img(img_array)
+        return gradient(img)
 
-        if size > 0:
-            img = img.resize((size, size))
-
-        img = np.expand_dims(np.array(img), axis=-1)
-        img = normalize_img(img)
-        self.input_img = gradient(img)
-
-        self.do_batch = batch_size != 0
-        self.batch_size = batch_size
-
-        self.x, self.y = image_array_to_xy(self.input_img)
-        self.create_batches()
-        self.cursor = 0
-
-        self.num_channel = self.input_img.shape[-1]
-        if len(self.input_img.shape) == 2:
-            self.num_channel = 1
- 
     def get_input_image(self):
-
         img = gradient_to_img(self.input_img) 
-        img = img * 255
         img = img.squeeze()
         return Image.fromarray(np.uint8(img))
         
