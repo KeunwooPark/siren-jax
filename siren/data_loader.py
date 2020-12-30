@@ -1,4 +1,4 @@
-from PIL import Image, ImageOps
+from PIL import Image
 import numpy as np
 from jax import numpy as jnp
 from util.image import gradient, gradient_to_img
@@ -12,15 +12,23 @@ def get_data_loader_cls_by_type(type):
     raise ValueError("Wrong data loader type: {}".format(type))
 
 class NormalImageLoader:
-    def __init__(self, img_path, size=0, batch_size=0):
+    def __init__(self, img_path, num_channels, size=0, batch_size=0):
         img = Image.open(img_path)
         self.original_pil_img = img
 
         if size > 0:
             img = img.resize((size, size))
 
-        self.input_img = normalize_img(np.array(img))
+        if num_channels == 3:
+            img = img.convert("RGB")
+            img_array = np.array(img)
+        else:
+            img = img.convert("L")
+            img_array = np.array(img)
+            img_array = np.expand_dims(img_array, axis = -1)
 
+        self.input_img = normalize_img(img_array)
+     
         self.do_batch = batch_size != 0
         self.batch_size = batch_size
 
@@ -65,12 +73,15 @@ class NormalImageLoader:
 
     def get_input_image(self):
         img = unnormalize_img(self.input_img)
+        img = img.squeeze()
         return Image.fromarray(np.uint8(img))
 
 class GradientImageLoader(NormalImageLoader):
-    def __init__(self, img_path, size=0, batch_size=0):
+    def __init__(self, img_path, num_channels, size=0, batch_size=0):
+        if num_channels != 1:
+            raise ValueError("num_channels should be 1")
         img = Image.open(img_path)
-        img = ImageOps.grayscale(img)
+        img = img.convert('LA')
         self.original_pil_img = img
 
         if size > 0:
@@ -113,6 +124,7 @@ def convert_to_normalized_index(width, height):
 
     return np.array(normalized_index)
 
+
 def image_array_to_xy(img_array):
     width, height, channel = img_array.shape
     y = []
@@ -124,7 +136,6 @@ def image_array_to_xy(img_array):
             y.append(img_array[i, j])
     return x, np.array(y)
 
-def xy_to_image_array(x, y, width, height):
     w_idx = ((x[:, 0] + 1) / 2) * (width-1)
     h_idx = ((x[:, 1] + 1) / 2) * (height-1)
 
@@ -138,6 +149,20 @@ def xy_to_image_array(x, y, width, height):
 
     return img_array
         
+
+def xy_to_image_array(x, y, width, height):
+    w_idx = ((x[:, 0] + 1) / 2) * (width-1)
+    h_idx = ((x[:, 1] + 1) / 2) * (height-1)
+
+    w_idx = np.around(w_idx).astype(np.int)
+    h_idx = np.around(h_idx).astype(np.int)
+                            
+    num_channel=y.shape[-1]
+    img_array = np.zeros((width, height, num_channel))
+                                        
+    img_array[w_idx, h_idx] = y
+
+    return img_array
 
 def split_to_batches(array, size = 0):
     if size == 0:

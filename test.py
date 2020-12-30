@@ -24,7 +24,7 @@ def main(args):
     params = loader.load_params()
     
     Model = get_model_cls_by_type(option['type'])
-    model = Model(layers, option['omega'])
+    model = Model(layers, option['nc'], option['omega'])
     model.update_net_params(params)
     
     if args.size == 0:
@@ -38,15 +38,16 @@ def main(args):
 
 
     estimate_and_save_image(model, width, height, logger)
+    if option['nc'] == 1:
+        estimate_and_save_gradient(model, width, height, logger)
+
     
-    if option['type'] == 'color':
+    if option['type'] == 'normal':
         # PIL resize as reference
         input_pil_img = loader.load_pil_image("input")
         resized_pil = input_pil_img.resize((width, height))
         pil_output_name = "pil_{}x{}".format(width, height)
         logger.save_image(pil_output_name, resized_pil)
-    else:
-        estimate_and_save_gradient(model, width, height, logger)
 
 def estimate_and_save_image(model, width, height, logger):
     x = convert_to_normalized_index(width, height)
@@ -78,7 +79,8 @@ def estimate_and_save_gradient(model, width, height, logger):
         batched_y.append(y)
 
     y = np.vstack(batched_y)
-    y = y.squeeze() 
+    y = y.squeeze()
+    print(np.sum(np.abs(y)))
     y = xy_to_image_array(x, y, width, height)
     grad_img = gradient_to_img(y)
     output_name = "grad_{}x{}".format(width, height)

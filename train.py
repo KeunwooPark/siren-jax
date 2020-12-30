@@ -9,7 +9,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Train SirenHighres')
 
     parser.add_argument('--file', type=str, help="location of the file", required=True)
-    parser.add_argument('--type', type=str, default="normal", choices=["normal","gradient", "laplace"], help="training image type")
+    parser.add_argument('--nc', type=int, default=3, help="number of channels of input image. if the source is color (3) and --nc is 1, then the source is converted to gray scale")
+    parser.add_argument('--type', type=str, default="normal", choices=["normal", "gradient", "laplace"], help="training image type")
     parser.add_argument('--size', type=int, default=256, help="resize the image to this (squre) shape. 0 if not goint go resize")
     parser.add_argument('--batch_size', type=int, default=0, help="the size of batches. 0 for single batch")
     parser.add_argument('--epoch', type=int, default=10000, help="number of epochs")
@@ -27,16 +28,16 @@ def main(args):
     Model = get_model_cls_by_type(args.type)
     DataLoader = get_data_loader_cls_by_type(args.type)
 
-    image_loader = DataLoader(args.file, args.size, args.batch_size)
-    model = Model(layers, image_loader.num_channel, args.omega)
+    data_loader = DataLoader(args.file, args.size, args.batch_size)
+    model = Model(layers, args.nc, args.omega)
     optimizer = JaxOptimizer('adam', model, args.lr)
 
     name = args.file.split('.')[0]
     logger = Logger(name)
     logger.save_option(vars(args))
     
-    input_img = image_loader.get_input_image()
-    logger.save_image("original", image_loader.original_pil_img)
+    input_img = data_loader.get_input_image()
+    logger.save_image("original", data_loader.original_pil_img)
     logger.save_image("input", input_img)
 
     timer = Timer()
@@ -56,8 +57,8 @@ def main(args):
 
     last_data = None
     for _ in range(args.epoch):
-        image_loader = DataLoader(args.file, args.size, args.batch_size)
-        for data in image_loader:
+        data_loader = DataLoader(args.file, args.size, args.batch_size)
+        for data in data_loader:
             optimizer.step(data)
             last_data = data
             if optimizer.iter_cnt % args.print_iter == 0:
