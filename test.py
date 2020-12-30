@@ -63,7 +63,12 @@ def estimate_and_save_image(model, width, height, logger):
 
     # save normal image
     img = xy_to_image_array(x, y, width, height)
-    img = unnormalize_img(img)
+
+    # scale values to 0~255
+    max_val = np.max(img)
+    min_val = np.min(img)
+    img = (img-max_val) / (max_val - min_val)
+    img *= 255
 
     output_name = "net_{}x{}".format(width, height)
     logger.save_image(output_name, img)

@@ -67,8 +67,9 @@ class GradientImageModel(BaseImageModel):
     def create_loss_func(self):
         @jit
         def loss_func(net_params, data):
+            scale = 10
             x = data['input']
-            y = data['output']
+            y = data['output'] * scale
             output = self.net.df(net_params, x)
             output = output.squeeze(1)
             return jnp.mean((output - y)**2)
