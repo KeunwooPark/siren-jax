@@ -13,7 +13,7 @@ def parse_args():
     parser.add_argument('--size', type=int, default=256, help="resize the image to this (squre) shape. 0 if not goint go resize")
     parser.add_argument('--batch_size', type=int, default=0, help="the size of batches. 0 for single batch")
     parser.add_argument('--epoch', type=int, default=10000, help="number of epochs")
-    parser.add_argument('--lr', type=float, default=0.00002, help="learning rate")
+    parser.add_argument('--lr', type=float, default=0.0002, help="learning rate")
     parser.add_argument('--print_iter', type=int, default=200, help="when to print intermediate info")
     parser.add_argument('--layers', type=str, default='256,256,256,256,256', help="layers of multi layer perceptron")
     parser.add_argument('--omega', type=float, default=30, help="omega value of Siren")

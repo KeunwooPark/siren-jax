@@ -4,7 +4,7 @@ import matplotlib.colors as colors
 
 def gradient(img):
     grad_x = ndimage.sobel(img, axis=1)
-    grad_y = ndimage.sobel(img, axis=2)
+    grad_y = ndimage.sobel(img, axis=0)
     
     return np.concatenate([grad_x, grad_y], axis = -1)
 
@@ -15,11 +15,11 @@ def gradient_to_img(gradient):
     n_rows = gradient.shape[0]
     n_cols = gradient.shape[1]
 
-    gr = gradient[:, :, 0]
-    gc = gradient[:, :, 1]
+    gx = gradient[:, :, 1]
+    gy = gradient[:, :, 0]
 
-    ga = np.arctan2(gc, gr)
-    gm = np.hypot(gc, gr)
+    ga = np.arctan2(gy, gx)
+    gm = np.hypot(gy, gx)
 
     hsv = np.zeros((n_rows, n_cols, 3), dtype=np.float32)
     hsv[:, :, 0] = (ga + np.pi) / (2 * np.pi)
