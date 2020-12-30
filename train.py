@@ -40,21 +40,23 @@ def main(args):
     logger.save_image("original", data_loader.original_pil_img)
     logger.save_image("input", input_img)
 
-    timer = Timer()
-    timer.start()
+    iter_timer = Timer()
+    iter_timer.start()
     def interm_callback(i, data, params):
         log = {}
         loss = model.loss_func(params, data)
         log['loss'] = float(loss)
         log['iter'] = i
-        log['duration_per_iter'] = timer.get_dt() / args.print_iter
+        log['duration_per_iter'] = iter_timer.get_dt() / args.print_iter
 
         logger.save_log(log)
         print(log)
 
     print("Training Start")
     print(vars(args))
-
+    
+    total_timer = Timer()
+    total_timer.start()
     last_data = None
     for _ in range(args.epoch):
         data_loader = DataLoader(args.file, args.size, args.batch_size)
@@ -68,6 +70,8 @@ def main(args):
     if not optimizer.iter_cnt % args.print_iter == 0:
         interm_callback(optimizer.iter_cnt, data, optimizer.get_optimized_params())
 
+    train_duration = total_timer.get_dt()
+    print("Training Duration: {} sec".format(train_duration))
     logger.save_net_params(optimizer.get_optimized_params())
     logger.save_losses_plot()
 
