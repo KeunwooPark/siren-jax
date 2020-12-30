@@ -1,7 +1,7 @@
 from PIL import Image, ImageOps
 import numpy as np
 from jax import numpy as jnp
-from util.image import gradient
+from util.image import gradient, gradient_to_img
 
 class ColorImageLoader:
     def __init__(self, img_path, size=0, batch_size=0):
@@ -65,8 +65,8 @@ class GradientImageLoader(ColorImageLoader):
             img = img.resize((size, size))
 
         img = np.expand_dims(np.array(img), axis=-1)
-        img = gradient(img)
-        self.input_img = img * 1
+        img = normalize_img(img)
+        self.input_img = gradient(img)
 
         self.do_batch = batch_size != 0
         self.batch_size = batch_size
@@ -76,9 +76,8 @@ class GradientImageLoader(ColorImageLoader):
         self.cursor = 0
 
     def get_input_image(self):
-        max_val = np.max(self.input_img)
-        min_val = np.min(self.input_img)
-        img = (self.input_img - min_val) / (max_val - min_val)
+
+        img = gradient_to_img(self.input_img) 
         img = img * 255
         img = img.squeeze()
         return Image.fromarray(np.uint8(img))
