@@ -4,14 +4,14 @@ from jax import numpy as jnp
 from util.image import gradient, gradient_to_img
 
 def get_data_loader_cls_by_type(type):
-    if type == 'color':
-        return ColorImageLoader
+    if type == 'normal':
+        return NormalImageLoader
     elif type == 'gradient':
         return GradientImageLoader
 
     raise ValueError("Wrong data loader type: {}".format(type))
 
-class ColorImageLoader:
+class NormalImageLoader:
     def __init__(self, img_path, size=0, batch_size=0):
         img = Image.open(img_path)
         self.original_pil_img = img
@@ -27,7 +27,11 @@ class ColorImageLoader:
         self.x, self.y = image_array_to_xy(self.input_img)
         self.create_batches()
         self.cursor = 0
-
+        
+        self.num_channel = self.input_img.shape[-1]
+        if len(self.input_img.shape) == 2:
+            self.num_channel = 1
+            
     def __iter__(self):
         return self
 
@@ -63,7 +67,7 @@ class ColorImageLoader:
         img = unnormalize_img(self.input_img)
         return Image.fromarray(np.uint8(img))
 
-class GradientImageLoader(ColorImageLoader):
+class GradientImageLoader(NormalImageLoader):
     def __init__(self, img_path, size=0, batch_size=0):
         img = Image.open(img_path)
         img = ImageOps.grayscale(img)
@@ -83,6 +87,10 @@ class GradientImageLoader(ColorImageLoader):
         self.create_batches()
         self.cursor = 0
 
+        self.num_channel = self.input_img.shape[-1]
+        if len(self.input_img.shape) == 2:
+            self.num_channel = 1
+ 
     def get_input_image(self):
 
         img = gradient_to_img(self.input_img) 
@@ -123,8 +131,6 @@ def xy_to_image_array(x, y, width, height):
     w_idx = np.around(w_idx).astype(np.int)
     h_idx = np.around(h_idx).astype(np.int)
 
-    #ww, hh = np.meshgrid(w_idx, h_idx)
-    
     num_channel=y.shape[-1]
     img_array = np.zeros((width, height, num_channel))
     

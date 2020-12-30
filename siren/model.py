@@ -5,16 +5,16 @@ from siren.optimizer import minimize_with_jax_optim
 from abc import ABC, abstractmethod
 
 def get_model_cls_by_type(type):
-    if type == 'color':
-        return ColorImageModel
+    if type == 'normal':
+        return NormalImageModel
     elif type == 'gradient':
         return GradientImageModel
     
     raise ValueError("Wrong model type {}".format(type))
 
 class BaseImageModel(ABC):
-    def __init__(self, layers, omega):
-        self.net = self.create_network(layers, omega)
+    def __init__(self, layers, n_channel, omega):
+        self.net = self.create_network(layers, n_channel, omega)
         self.loss_func = self.create_loss_func()
 
     @abstractmethod
@@ -35,17 +35,18 @@ class BaseImageModel(ABC):
         x = jnp.array(x, dtype=jnp.float32)
         return self.net.f(self.net.net_params, x)
 
-    def first_derivative(self, x):
+    def gradient(self, x):
         x = jnp.array(x, dtype=jnp.float32)
         return self.net.df(self.net.net_params, x)
 
-    def second_derivative(self, x):
+    def laplace(self, x):
         x = jnp.array(x, dtype=jnp.float32)
-        return self.net.d2f(self.net.net_params, x)
+        net_out = self.net.d2f(self.net.net_params, x)
+        return jnp.sum(net_out, axis = -1)
 
-class ColorImageModel(BaseImageModel):
-    def create_network(self, layers, omega):
-        return Siren(2, layers, 3, omega)
+class NormalImageModel(BaseImageModel):
+    def create_network(self, layers, n_channel, omega):
+        return Siren(2, layers, n_channel, omega)
 
     def create_loss_func(self):
         @jit
@@ -58,7 +59,9 @@ class ColorImageModel(BaseImageModel):
         return loss_func
 
 class GradientImageModel(BaseImageModel):
-    def create_network(self, layers, omega):
+    def create_network(self, layers, n_channel, omega):
+        if n_channel != 1:
+            raise Exception("n_channel should be 1 for GradientImageModel")
         return Siren(2, layers, 1, omega)
 
     def create_loss_func(self):
