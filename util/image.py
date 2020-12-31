@@ -8,6 +8,14 @@ def gradient(img):
     
     return np.concatenate([grad_x, grad_y], axis = -1)
 
+def rescale_img(x, max_val = 1.0, min_val = 0.0):
+    x_min = np.min(x)
+    x_max = np.max(x)
+
+    rescaled = (x - x_min) / (x_max - x_min) * (max_val - min_val) + min_val
+
+    return rescaled
+
 def gradient_to_img(gradient):
     # code from original Siren implementation
     # https://github.com/vsitzmann/siren/blob/4df34baee3f0f9c8f351630992c1fe1f69114b5f/dataio.py#L55

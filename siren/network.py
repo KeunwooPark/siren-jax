@@ -1,6 +1,7 @@
 from jax.experimental import stax
 import jax
 from jax import vmap, jacfwd, hessian
+from jax import numpy as jnp
 
 from siren.initializer import siren_init, siren_init_first, bias_uniform
 from siren import layer
@@ -44,12 +45,19 @@ class Siren:
         return self.net_apply(net_params, x)
 
     def df(self, net_params, x):
-        return jacobain_wrt_input(self.net_apply, net_params, x)
+        return elementwise_jacobian(self.net_apply, net_params, x)
 
     def d2f(self, net_params, x):
         return hessian_wrt_input(self.net_apply, self.net_params, x)
 
-def jacobain_wrt_input(net_apply, net_params, x):
+def elementwise_jacobian(net_apply, net_params, x):
+    f = lambda x: net_apply(net_params, x)
+    y, f_vjp = jax.vjp(f, x)
+    x_grad, = f_vjp(jnp.ones_like(y))
+    x_grad = jnp.expand_dims(x_grad, axis = 1)
+    return x_grad
+
+def jacobian_wrt_input(net_apply, net_params, x):
     f = lambda x: net_apply(net_params, x)
     vmap_jac = vmap(jacfwd(f))
 

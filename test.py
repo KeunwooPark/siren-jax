@@ -5,7 +5,7 @@ from siren.model import get_model_cls_by_type
 from util.log import Loader, Logger
 from siren.data_loader import convert_to_normalized_index, unnormalize_img, xy_to_image_array, split_to_batches
 from PIL import Image
-from util.image import gradient_to_img
+from util.image import gradient_to_img, rescale_img
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Test SirenHighres")
@@ -63,12 +63,8 @@ def estimate_and_save_image(model, width, height, logger):
 
     # save normal image
     img = xy_to_image_array(x, y, width, height)
-
+    img = rescale_img(img, max_val=255, min_val=0)
     # scale values to 0~255
-    max_val = np.max(img)
-    min_val = np.min(img)
-    img = (img-max_val) / (max_val - min_val)
-    img *= 255
 
     output_name = "net_{}x{}".format(width, height)
     logger.save_image(output_name, img)
