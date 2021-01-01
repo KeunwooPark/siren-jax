@@ -11,7 +11,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Test SirenHighres")
 
     parser.add_argument('--run_name', type=str, help="the name of a train run")
-    parser.add_argument('--size', type=int, default=512, help="size of image to generate. set to 0 if to use the original image size.")
+    parser.add_argument('--size', type=int, default=0, help="size of image to generate. set to 0 if to use the original image size.")
     
     args = parser.parse_args()
     return args

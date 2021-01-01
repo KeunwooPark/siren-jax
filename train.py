@@ -59,7 +59,7 @@ def main(args):
     total_timer.start()
     last_data = None
     for _ in range(args.epoch):
-        data_loader = DataLoader(args.file, args.size, args.batch_size)
+        data_loader = DataLoader(args.file, args.nc, args.size, args.batch_size)
         for data in data_loader:
             optimizer.step(data)
             last_data = data

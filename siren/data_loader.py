@@ -21,14 +21,15 @@ class BaseImageLoader(ABC):
 
         if num_channels == 3:
             img = img.convert("RGB")
-            self.original_pil_img = img
             img_array = np.array(img)
-        else:
+        elif num_channels == 1:
             img = img.convert("L")
-            self.original_pil_img = img
             img_array = np.array(img)
             img_array = np.expand_dims(img_array, axis = -1)
+        else:
+            raise ValueError("Wrong number of channels")
 
+        self.original_pil_img = img
         #self.input_img = normalize_img(img_array)
         self.input_img = self.create_input_img(img_array)
      
