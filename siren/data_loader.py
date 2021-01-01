@@ -72,7 +72,6 @@ class BaseImageLoader(ABC):
             self.batched_x, self.num_batches = split_to_batches(self.x, size = self.batch_size)
             self.batched_y, self.num_batches = split_to_batches(self.y, size = self.batch_size)
 
-
     def get(self, i):
         x = jnp.array(self.batched_x[i])
         y = jnp.array(self.batched_y[i])
@@ -145,7 +144,7 @@ def split_to_batches(array, size = 0):
         num_batches = 1
         return [array], num_batches
 
-    num_sample = array.shape[0]
+    num_sample = array.shape[0] 
     num_batches = int(np.ceil(num_sample / size))
     batched = np.array_split(array, num_batches)
 
