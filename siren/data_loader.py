@@ -110,37 +110,20 @@ def unnormalize_img(img_array):
 
 def convert_to_normalized_index(width, height):
     normalized_index = []
-    for i in np.linspace(-1, 1, width):
-        for j in np.linspace(-1, 1, height):
-            normalized_index.append([i, j])
+    i = np.linspace(-1, 1, width)
+    j = np.linspace(-1, 1, height)
+    ii, jj = np.meshgrid(i, j, indexing='ij')
 
-    return np.array(normalized_index)
-
+    normalized_index = np.stack([ii, jj], axis = -1)
+    return np.reshape(normalized_index, (-1, 2))
 
 def image_array_to_xy(img_array):
     width, height, channel = img_array.shape
-    y = []
 
     x = convert_to_normalized_index(width, height)
-
-    for i in range(width):
-        for j in range(height):
-            y.append(img_array[i, j])
+    num_channel = img_array.shape[-1]
+    y = np.reshape(img_array, (-1, num_channel))
     return x, np.array(y)
-
-    w_idx = ((x[:, 0] + 1) / 2) * (width-1)
-    h_idx = ((x[:, 1] + 1) / 2) * (height-1)
-
-    w_idx = np.around(w_idx).astype(np.int)
-    h_idx = np.around(h_idx).astype(np.int)
-
-    num_channel=y.shape[-1]
-    img_array = np.zeros((width, height, num_channel))
-    
-    img_array[w_idx, h_idx] = y
-
-    return img_array
-        
 
 def xy_to_image_array(x, y, width, height):
     w_idx = ((x[:, 0] + 1) / 2) * (width-1)
