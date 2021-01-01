@@ -6,7 +6,7 @@ def gradient(img):
     grad_x = ndimage.sobel(img, axis=1)
     grad_y = ndimage.sobel(img, axis=0)
     
-    return np.concatenate([grad_x, grad_y], axis = -1)
+    return np.concatenate([grad_y, grad_x], axis = -1)
 
 def rescale_img(x, max_val = 1.0, min_val = 0.0):
     x_min = np.min(x)
@@ -26,8 +26,8 @@ def gradient_to_img(gradient):
     gx = gradient[:, :, 1]
     gy = gradient[:, :, 0]
 
-    ga = np.arctan2(gy, gx)
-    gm = np.hypot(gy, gx)
+    ga = np.arctan2(gx, gy)
+    gm = np.hypot(gx, gy)
 
     hsv = np.zeros((n_rows, n_cols, 3), dtype=np.float32)
     hsv[:, :, 0] = (ga + np.pi) / (2 * np.pi)

@@ -56,7 +56,6 @@ def estimate_and_save_image(model, width, height, logger):
     batched_y = []
     for bx in batched_x:
         y = model.forward(bx)
-        
         batched_y.append(y)
 
     y = np.vstack(batched_y)
@@ -72,7 +71,6 @@ def estimate_and_save_gradient(model, width, height, logger):
     batched_y = []
     for bx in batched_x:
         y = model.gradient(bx)
-        
         batched_y.append(y)
 
     y = np.vstack(batched_y)
