@@ -60,12 +60,8 @@ def estimate_and_save_image(model, width, height, logger):
         batched_y.append(y)
 
     y = np.vstack(batched_y)
-
-    # save normal image
     img = xy_to_image_array(x, y, width, height)
     img = rescale_img(img, max_val=255, min_val=0)
-    # scale values to 0~255
-
     output_name = "net_{}x{}".format(width, height)
     logger.save_image(output_name, img)
 

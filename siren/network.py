@@ -11,7 +11,7 @@ def create_mlp(input_dim, num_channels, output_dim, omega = 30):
     modules = []
     modules.append(layer.Dense(num_channels[0], W_init = siren_init_first(), b_init=bias_uniform()))
     modules.append(layer.Sine(omega))
-    for nc in num_channels[1:]:
+    for nc in num_channels:
         modules.append(layer.Dense(nc, W_init = siren_init(omega = omega), b_init=bias_uniform()))
         modules.append(layer.Sine(omega))
 
