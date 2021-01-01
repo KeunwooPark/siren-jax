@@ -15,16 +15,17 @@ def get_data_loader_cls_by_type(type):
 class BaseImageLoader(ABC):
     def __init__(self, img_path, num_channels, size=0, batch_size=0):
         img = Image.open(img_path)
-        self.original_pil_img = img
 
         if size > 0:
             img = img.resize((size, size))
 
         if num_channels == 3:
             img = img.convert("RGB")
+            self.original_pil_img = img
             img_array = np.array(img)
         else:
             img = img.convert("L")
+            self.original_pil_img = img
             img_array = np.array(img)
             img_array = np.expand_dims(img_array, axis = -1)
 
