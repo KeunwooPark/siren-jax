@@ -48,7 +48,8 @@ class Siren:
         return elementwise_jacobian(self.net_apply, net_params, x)
 
     def d2f(self, net_params, x):
-        return hessian_wrt_input(self.net_apply, self.net_params, x)
+        #return hessian_wrt_input(self.net_apply, self.net_params, x)
+        return elmentwise_hessian(self.net_apply, net_params, x)
 
 def elementwise_jacobian(net_apply, net_params, x):
     f = lambda x: net_apply(net_params, x)
@@ -57,12 +58,27 @@ def elementwise_jacobian(net_apply, net_params, x):
     x_grad = jnp.expand_dims(x_grad, axis = 1)
     return x_grad
 
+# this works the same way as 'elementwise_jacobian', but slower
 def jacobian_wrt_input(net_apply, net_params, x):
     f = lambda x: net_apply(net_params, x)
     vmap_jac = vmap(jacfwd(f))
 
     J = vmap_jac(x)
     return J
+
+def hvp_revrev(f, primals, tangetns):
+    x, = primals
+    v, = tangetns
+    print("revrev", x.shap, v.shape)
+    return grad(lambda x: jnp.vdot(grad(f)(x), v))(x)
+
+def elementwise_hessian(net_apply, net_params, x):
+    f = lambda x: net_apply(net_params, x)
+    v = jnp.ones_like(x)
+
+    x_second_grad = hvp_revrev(f, x, v)
+    return x_second_grad
+
 
 def hessian_wrt_input(net_apply, net_params, x):
     f = lambda x: net_apply(net_params, x)
