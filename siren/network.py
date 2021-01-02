@@ -1,6 +1,6 @@
 from jax.experimental import stax
 import jax
-from jax import vmap, jacfwd, hessian
+from jax import vmap, jacfwd, hessian, grad
 from jax import numpy as jnp
 
 from siren.initializer import siren_init, siren_init_first, bias_uniform
@@ -45,12 +45,14 @@ class Siren:
         return self.net_apply(net_params, x)
 
     def df(self, net_params, x):
-        return elementwise_jacobian(self.net_apply, net_params, x)
+        return jacobian_wrt_input(self.net_apply, self.net_params, x)
 
     def d2f(self, net_params, x):
-        #return hessian_wrt_input(self.net_apply, self.net_params, x)
-        return elmentwise_hessian(self.net_apply, net_params, x)
+        return hessian_wrt_input(self.net_apply, self.net_params, x)
 
+# This is more efficient than 'jacobian_wrt_input'
+# But 1) semantically less clear, and 2) it can be used only when Jacobian is guarenteed to be a diagonal matrix
+# https://github.com/google/jax/issues/564#issuecomment-479523169
 def elementwise_jacobian(net_apply, net_params, x):
     f = lambda x: net_apply(net_params, x)
     y, f_vjp = jax.vjp(f, x)
@@ -58,27 +60,12 @@ def elementwise_jacobian(net_apply, net_params, x):
     x_grad = jnp.expand_dims(x_grad, axis = 1)
     return x_grad
 
-# this works the same way as 'elementwise_jacobian', but slower
 def jacobian_wrt_input(net_apply, net_params, x):
     f = lambda x: net_apply(net_params, x)
     vmap_jac = vmap(jacfwd(f))
 
     J = vmap_jac(x)
     return J
-
-def hvp_revrev(f, primals, tangetns):
-    x, = primals
-    v, = tangetns
-    print("revrev", x.shap, v.shape)
-    return grad(lambda x: jnp.vdot(grad(f)(x), v))(x)
-
-def elementwise_hessian(net_apply, net_params, x):
-    f = lambda x: net_apply(net_params, x)
-    v = jnp.ones_like(x)
-
-    x_second_grad = hvp_revrev(f, x, v)
-    return x_second_grad
-
 
 def hessian_wrt_input(net_apply, net_params, x):
     f = lambda x: net_apply(net_params, x)

@@ -1,7 +1,6 @@
 from jax import jit
 from jax import numpy as jnp
 from siren.network import Siren
-from siren.optimizer import minimize_with_jax_optim
 from abc import ABC, abstractmethod
 
 def get_model_cls_by_type(type):
@@ -85,5 +84,8 @@ class LaplaceImageModel(GradientImageModel):
             x = data['input']
             y = data['output']
             output = self.net.d2f(net_params, x)
+            laplace = jnp.sum(output, axis = -1)
             diff = output - y
             return jnp.mean(diff**2)
+
+        return loss_func
