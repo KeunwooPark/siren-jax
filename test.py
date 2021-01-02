@@ -40,7 +40,7 @@ def main(args):
 
     estimate_and_save_image(model, width, height, logger)
     if option['nc'] == 1:
-        #estimate_and_save_gradient(model, width, height, logger)
+        estimate_and_save_gradient(model, width, height, logger)
         estimate_and_save_laplacian(model, width, height, logger)
 
     
@@ -96,7 +96,7 @@ def estimate_and_save_laplacian(model, width, height, logger):
     y = xy_to_image_array(x, y, width, height)
     lap_img = laplacian_to_img(y)
     img_name = "laplacian_{}x{}".format(width, height)
-    logger.save_image(output_name, grad_img)
+    logger.save_image(img_name, lap_img)
 
 if __name__ == "__main__":
     args = parse_args()
