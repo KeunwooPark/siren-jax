@@ -48,7 +48,7 @@ class Siren:
         return jacobian_wrt_input(self.net_apply, net_params, x)
 
     def d2f(self, net_params, x):
-        return hessian_wrt_input(self.net_apply, self.net_params, x)
+        return hessian_wrt_input(self.net_apply, net_params, x)
 
 def elementwise_jacobian(net_apply, net_params, x):
     f = lambda x: net_apply(net_params, x)
