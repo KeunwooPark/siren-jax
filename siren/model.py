@@ -9,6 +9,8 @@ def get_model_cls_by_type(type):
         return NormalImageModel
     elif type == 'gradient':
         return GradientImageModel
+    elif type == 'laplacian':
+        return LaplacianImageModel
     
     raise ValueError("Wrong model type {}".format(type))
 
@@ -73,5 +75,18 @@ class GradientImageModel(BaseImageModel):
             output = output.squeeze(1)
             diff = (output - y)
             return jnp.mean(jnp.sum(diff**2, axis=-1))
+
+        return loss_func
+
+class LaplacianImageModel(GradientImageModel):
+    def create_loss_func(self):
+        @jit
+        def loss_func(net_params, data):
+            x = data['input']
+            y = data['output']
+            output = self.net.d2f(net_params, x)
+            laplacian = jnp.sum(output, axis=-1)
+            diff = (y - laplacian)
+            return jnp.mean(diff**2)
 
         return loss_func

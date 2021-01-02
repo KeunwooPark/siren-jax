@@ -10,8 +10,8 @@ def parse_args():
 
     parser.add_argument('--file', type=str, help="location of the file", required=True)
     parser.add_argument('--nc', type=int, default=3, help="number of channels of input image. if the source is color (3) and --nc is 1, then the source is converted to gray scale")
-    parser.add_argument('--type', type=str, default="normal", choices=["normal", "gradient", "laplace"], help="training image type")
-    parser.add_argument('--size', type=int, default=0, help="resize the image to this (squre) shape. 0 if not goint go resize")
+    parser.add_argument('--type', type=str, default="normal", choices=["normal", "gradient", "laplacian"], help="training image type")
+    parser.add_argument('--size', type=int, default=256, help="resize the image to this (squre) shape. 0 if not goint go resize")
     parser.add_argument('--batch_size', type=int, default=16384, help="the size of batches. 0 for single batch")
     parser.add_argument('--epoch', type=int, default=10000, help="number of epochs")
     parser.add_argument('--lr', type=float, default=0.0001, help="learning rate")
