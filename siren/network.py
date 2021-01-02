@@ -45,10 +45,10 @@ class Siren:
         return self.net_apply(net_params, x)
 
     def df(self, net_params, x):
-        return jacobian_wrt_input(self.net_apply, self.net_params, x)
+        return jacobian_wrt_input(self.net_apply, net_params, x)
 
     def d2f(self, net_params, x):
-        return hessian_wrt_input(self.net_apply, self.net_params, x)
+        return hessian_wrt_input(self.net_apply, net_params, x)
 
 # This is more efficient than 'jacobian_wrt_input'
 # But 1) semantically less clear, and 2) it can be used only when Jacobian is guarenteed to be a diagonal matrix

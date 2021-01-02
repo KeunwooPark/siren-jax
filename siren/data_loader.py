@@ -1,7 +1,11 @@
 from PIL import Image
 import numpy as np
 from jax import numpy as jnp
+<<<<<<< HEAD
 from util.image import gradient, gradient_to_img, laplace, laplace_to_img, clip_img_by_perc
+=======
+from util.image import gradient, gradient_to_img, laplace, laplace_to_img
+>>>>>>> fix-optim
 from abc import ABC, abstractmethod
 
 def get_data_loader_cls_by_type(type):
@@ -9,8 +13,8 @@ def get_data_loader_cls_by_type(type):
         return NormalImageLoader
     elif type == 'gradient':
         return GradientImageLoader
-    elif type == 'laplace':
-        return LaplaceImageLoader
+    elif type == 'laplacian':
+        return LaplacianImageLoader
 
     raise ValueError("Wrong data loader type: {}".format(type))
 
@@ -103,16 +107,15 @@ class GradientImageLoader(BaseImageLoader):
         img = img.squeeze()
         return Image.fromarray(np.uint8(img))
 
-class LaplaceImageLoader(BaseImageLoader):
+class LaplacianImageLoader(BaseImageLoader):
     def create_input_img(self, img_array):
-        img = normalize_img(img_array) * 1e4
-        return laplace(img)
+        img = normalize_img(img_array)
+        return laplace(img * 1e4)
 
     def get_input_image(self):
         img = laplace_to_img(self.input_img)
-        img = img.squeeze()
         return Image.fromarray(np.uint8(img))
-
+        
 def normalize_img(img_array):
     img_array = img_array / 255.0
     return (img_array - 0.5) / 0.5
