@@ -37,7 +37,7 @@ class Siren:
     ):
         net_params, net_apply = create_mlp(input_dim, layers, output_dim, omega)
 
-        self.net_params = net_params
+        self.init_params = net_params
         self.net_apply = net_apply
 
     """ *_p methods are used for optimization """

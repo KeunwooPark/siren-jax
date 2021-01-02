@@ -44,17 +44,17 @@ def main(args):
         estimate_and_save_laplacian(model, width, height, logger)
 
     
-    if option['type'] == 'normal':
+    if option['size'] != 0:
         # PIL resize as reference
-        input_pil_img = loader.load_pil_image("input")
-        resized_pil = input_pil_img.resize((width, height))
+        orig_pil_img = loader.load_pil_image("original")
+        resized_pil = orig_pil_img.resize((width, height))
         pil_output_name = "pil_{}x{}".format(width, height)
         logger.save_image(pil_output_name, resized_pil)
 
 def estimate_and_save_image(model, width, height, logger):
     x = convert_to_normalized_index(width, height)
     
-    batched_x, _ = split_to_batches(x, size=2048)
+    batched_x, _ = split_to_batches(x, size=16384)
     batched_y = []
     for bx in batched_x:
         y = model.forward(bx)
@@ -69,7 +69,7 @@ def estimate_and_save_image(model, width, height, logger):
 def estimate_and_save_gradient(model, width, height, logger):
     x = convert_to_normalized_index(width, height)
     
-    batched_x, _ = split_to_batches(x, size=2048)
+    batched_x, _ = split_to_batches(x, size=16384)
     batched_y = []
     for bx in batched_x:
         y = model.gradient(bx)
@@ -85,7 +85,7 @@ def estimate_and_save_gradient(model, width, height, logger):
 def estimate_and_save_laplacian(model, width, height, logger):
     x = convert_to_normalized_index(width, height)
     
-    batched_x, _ = split_to_batches(x, size=2048)
+    batched_x, _ = split_to_batches(x, size=16384)
     batched_y = []
     for bx in batched_x:
         bx = jnp.array(bx)

@@ -25,7 +25,7 @@ class JaxOptimizer:
         if optimizer_name == "adam":
             opt_init, opt_update, get_params = optimizers.adam(step_size=lr)
 
-        self.opt_state = opt_init(model.get_params())
+        self.opt_state = opt_init(model.net_params)
         self.get_params = get_params
 
         @jit

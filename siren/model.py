@@ -16,6 +16,7 @@ def get_model_cls_by_type(type):
 class BaseImageModel(ABC):
     def __init__(self, layers, n_channel, omega):
         self.net = self.create_network(layers, n_channel, omega)
+        self.net_params = self.net.init_params
         self.loss_func = self.create_loss_func()
 
     @abstractmethod
@@ -27,20 +28,17 @@ class BaseImageModel(ABC):
         pass
 
     def update_net_params(self, params):
-        self.net.net_params = params
-
-    def get_params(self):
-        return self.net.net_params
+        self.net_params = params
 
     def forward(self, x):
         x = jnp.array(x, dtype=jnp.float32)
-        return self.net.f(self.net.net_params, x)
+        return self.net.f(self.net_params, x)
 
     def gradient(self, x):
-        return self.net.df(self.net.net_params, x)
+        return self.net.df(self.net_params, x)
 
     def laplace(self, x):
-        net_out = self.net.d2f(self.net.net_params, x)
+        net_out = self.net.d2f(self.net_params, x)
         return jnp.sum(net_out, axis = -1)
 
 class NormalImageModel(BaseImageModel):
