@@ -33,21 +33,17 @@ class BaseImageLoader(ABC):
 
         self.original_pil_img = img
         #self.input_img = normalize_img(img_array)
-        self.input_img = self.create_input_img(img_array)
+        self.gt_img = self.create_ground_truth_img(img_array)
      
         self.do_batch = batch_size != 0
         self.batch_size = batch_size
 
-        self.x, self.y = image_array_to_xy(self.input_img)
+        self.x, self.y = image_array_to_xy(self.gt_img)
         self.create_batches()
         self.cursor = 0
         
-        self.num_channel = self.input_img.shape[-1]
-        if len(self.input_img.shape) == 2:
-            self.num_channel = 1
-
     @abstractmethod
-    def create_input_img(self):
+    def create_ground_truth_img(self):
         pass
             
     def __iter__(self):
@@ -81,35 +77,35 @@ class BaseImageLoader(ABC):
         return data
 
     @abstractmethod
-    def get_input_image(self):
+    def get_ground_truth_image(self):
         pass
         
 class NormalImageLoader(BaseImageLoader):
-    def create_input_img(self, img_array):
+    def create_ground_truth_img(self, img_array):
         return normalize_img(img_array)
 
-    def get_input_image(self):
-        img = unnormalize_img(self.input_img)
+    def get_ground_truth_image(self):
+        img = unnormalize_img(self.gt_img)
         img = img.squeeze()
         return Image.fromarray(np.uint8(img))
 
 class GradientImageLoader(BaseImageLoader):
-    def create_input_img(self, img_array):
+    def create_ground_truth_img(self, img_array):
         img = normalize_img(img_array)
         return gradient(img * 1e1)
 
-    def get_input_image(self):
-        img = gradient_to_img(self.input_img)
+    def get_ground_truth_image(self):
+        img = gradient_to_img(self.gt_img)
         img = img.squeeze()
         return Image.fromarray(np.uint8(img))
 
 class LaplacianImageLoader(BaseImageLoader):
-    def create_input_img(self, img_array):
+    def create_ground_truth_img(self, img_array):
         img = normalize_img(img_array)
         return laplace(img * 1e4)
 
-    def get_input_image(self):
-        img = laplacian_to_img(self.input_img)
+    def get_ground_truth_image(self):
+        img = laplacian_to_img(self.gt_img)
         return Image.fromarray(np.uint8(img))
         
 def normalize_img(img_array):

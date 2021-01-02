@@ -36,9 +36,9 @@ def main(args):
     logger = Logger(name)
     logger.save_option(vars(args))
     
-    input_img = data_loader.get_input_image()
+    gt_img = data_loader.get_ground_truth_image()
     logger.save_image("original", data_loader.original_pil_img)
-    logger.save_image("input", input_img)
+    logger.save_image("gt", gt_img)
 
     iter_timer = Timer()
     iter_timer.start()
