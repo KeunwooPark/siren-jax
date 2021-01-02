@@ -1,11 +1,7 @@
 from PIL import Image
 import numpy as np
 from jax import numpy as jnp
-<<<<<<< HEAD
-from util.image import gradient, gradient_to_img, laplace, laplace_to_img, clip_img_by_perc
-=======
 from util.image import gradient, gradient_to_img, laplace, laplace_to_img
->>>>>>> fix-optim
 from abc import ABC, abstractmethod
 
 def get_data_loader_cls_by_type(type):

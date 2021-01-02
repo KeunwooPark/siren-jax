@@ -8,7 +8,7 @@ def get_model_cls_by_type(type):
         return NormalImageModel
     elif type == 'gradient':
         return GradientImageModel
-   elif type == 'laplacian':
+    elif type == 'laplacian':
         return LaplacianImageModel
     
     raise ValueError("Wrong model type {}".format(type))
