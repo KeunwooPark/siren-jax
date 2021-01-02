@@ -37,11 +37,9 @@ class BaseImageModel(ABC):
         return self.net.f(self.net.net_params, x)
 
     def gradient(self, x):
-        x = jnp.array(x, dtype=jnp.float32)
         return self.net.df(self.net.net_params, x)
 
     def laplace(self, x):
-        x = jnp.array(x, dtype=jnp.float32)
         net_out = self.net.d2f(self.net.net_params, x)
         return jnp.sum(net_out, axis = -1)
 

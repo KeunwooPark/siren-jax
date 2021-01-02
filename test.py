@@ -1,11 +1,12 @@
 import argparse
 import numpy as np
+from jax import numpy as jnp
 
 from siren.model import get_model_cls_by_type
 from util.log import Loader, Logger
 from siren.data_loader import convert_to_normalized_index, unnormalize_img, xy_to_image_array, split_to_batches
 from PIL import Image
-from util.image import gradient_to_img, rescale_img
+from util.image import gradient_to_img, rescale_img, laplacian_to_img
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Test SirenHighres")
@@ -39,7 +40,8 @@ def main(args):
 
     estimate_and_save_image(model, width, height, logger)
     if option['nc'] == 1:
-        estimate_and_save_gradient(model, width, height, logger)
+        #estimate_and_save_gradient(model, width, height, logger)
+        estimate_and_save_laplacian(model, width, height, logger)
 
     
     if option['type'] == 'normal':
@@ -78,6 +80,22 @@ def estimate_and_save_gradient(model, width, height, logger):
     y = xy_to_image_array(x, y, width, height)
     grad_img = gradient_to_img(y)
     output_name = "grad_{}x{}".format(width, height)
+    logger.save_image(output_name, grad_img)
+
+def estimate_and_save_laplacian(model, width, height, logger):
+    x = convert_to_normalized_index(width, height)
+    
+    batched_x, _ = split_to_batches(x, size=2048)
+    batched_y = []
+    for bx in batched_x:
+        bx = jnp.array(bx)
+        y = model.laplace(bx)
+        batched_y.append(y)
+
+    y = np.vstack(batched_y)
+    y = xy_to_image_array(x, y, width, height)
+    lap_img = laplacian_to_img(y)
+    img_name = "laplacian_{}x{}".format(width, height)
     logger.save_image(output_name, grad_img)
 
 if __name__ == "__main__":

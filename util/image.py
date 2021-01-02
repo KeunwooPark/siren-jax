@@ -56,9 +56,9 @@ def gradient_to_img(gradient):
     rgb *= 255
     return rgb
 
-def laplace_to_img(laplace):
-    laplace = clip_img_by_perc(laplace, 2)
-    rescaled = rescale_img(laplace, max_val=255, min_val=0)
+def laplacian_to_img(laplacian):
+    laplacian = clip_img_by_perc(laplacian, 2)
+    rescaled = rescale_img(laplacian, max_val=255, min_val=0)
     
     colormap_img = cv2.applyColorMap(np.uint8(rescaled).squeeze(), cmapy.cmap('RdBu'))
     img = cv2.cvtColor(colormap_img, cv2.COLOR_BGR2RGB)
