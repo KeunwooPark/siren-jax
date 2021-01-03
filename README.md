@@ -32,6 +32,11 @@ $ python test.py --run_name reference
 
 ## Example Results
 This section shows results of *implicite image representation* and *solving Possion equation*.
+Training settings are all same unless it is metioned.
+- learning rate: 0.0001
+- single batch
+- 256 X 5 layers
+- epoch: 10000 
 
 ### Reproducing Paper Results
 
@@ -56,6 +61,16 @@ Results were almost same with the paper.
 <ground truth -- laplacian output -- vanilla output -- gradient output>
 
 ![laplacian result](example_results/laplacian_result.png)
+
+### Batch Effect
+The original paper only tested with single batch. I was curious the effect of batch size and I did a test.
+- batch size: 16384 (4 batches per epoch)
+
+<trained with vanilla image -- trained with gradient, -- trained with laplacian -- ground truth>
+
+![batch result](example_results/batch_result.png)
+
+It seems like using batches leads to worse result, as the number of derivative increases. The result of laplacian trained network is very much different with the ground truth image, compare to others.
 
 ### Upscale Test
 
