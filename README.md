@@ -13,12 +13,15 @@ If you want to know more about Siren, please check out the [project page](https:
 
 Jax is very fast and convinient for calculating derivatives of a network. Indeed, the training speed is much faster than the Pytorch implementation from the paper. This Jax implementation takes less than 12 minutes for a training, and the original implementation takes 90 minuites for a test as the paper says.
 
-### Speed test results
-#### Environment
+### Speed Test Results
+
+#### Details
 
 - 1 Nvidia RTX 2080 Ti
 - Cuda 10.2
 - Ubuntu 18.04
+- Image size : 256 X 256
+- Single Batch
 
 | Vanillla Training | Gradient Training | Laplacian Training |
 |-------------------|-------------------|--------------------|
