@@ -104,7 +104,7 @@ class CombinedImageModel(GradientImageModel):
             out_laplacian = jnp.sum(out_laplacian, axis = -1)
 
             loss_vanilla = jnp.mean((gt_vanilla - out_vanilla) ** 2)
-            loss_gradient = jnp.mean((gt_gradient - out_gradient) ** 2) * 1e1
+            loss_gradient = jnp.mean((gt_gradient - out_gradient) ** 2) * 1e2
             loss_laplacian = jnp.mean((gt_laplacian - out_laplacian) ** 2) * 1e4
 
             return loss_vanilla + loss_gradient + loss_laplacian
