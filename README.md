@@ -35,4 +35,14 @@ This section shows results of *implicite image representation* and *solving Poss
 
 ### Reproducing Paper Results
 
+Results were almost same with the paper.
+
+#### Training with color vanilla image
+From left: ground truth, vanilla network output.
+![vanilla color result](example_results/vanilla_color_result.png)
+
+#### Training with gray vanilla image
+From left: ground truth, vanilla output, gradient of output, laplacian of output
+![vanilla gray result](example_results/vanilla_gray_result.png)
+
 
