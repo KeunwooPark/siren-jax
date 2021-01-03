@@ -9,6 +9,21 @@ Siren uses sine functions as activation functions and it can represent continous
 
 If you want to know more about Siren, please check out the [project page](https://vsitzmann.github.io/siren/).
 
+## Why Jax?
+
+Jax is very fast and convinient for calculating derivatives of a network. Indeed, the training speed is much faster than the Pytorch implementation from the paper. This Jax implementation takes less than 12 minutes for a training, and the original implementation takes 90 minuites for a test as the paper says.
+
+### Speed test results
+#### Environment
+
+- 1 Nvidia RTX 2080 Ti
+- Cuda 10.2
+- Ubuntu 18.04
+
+| Vanillla Training | Gradient Training | Laplacian Training |
+|-------------------|-------------------|--------------------|
+| 110 seconds       |   311 seconds     |   661 seconds      |
+
 ## How to use?
 
 ### 1. Install Jax
