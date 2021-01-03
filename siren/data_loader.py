@@ -107,7 +107,68 @@ class LaplacianImageLoader(BaseImageLoader):
     def get_ground_truth_image(self):
         img = laplacian_to_img(self.gt_img)
         return Image.fromarray(np.uint8(img))
+
+class CombinedImageLoader:
+    def __init__(self, img_path, num_channels, size=0, batch_size=0):
+        img = Image.open(img_path)
+
+        if size > 0:
+            img = img.resize((size, size))
+
+        if num_channels != 1:
+            raise ValueError("Only supports 1 channels for now")
+
+        img = img.convert("L")
+        img_array = np.array(img)
+        img_array = np.expand_dims(img_array, axis=-1)
+
+        self.original_pil_img = img
+        self.gt_vanilla = normalize_img(img_array)
+        self.gt_gradient = gradient(normalize_img(img_array))
+        self.gt_laplacian = laplace(normalize_img(img_array))
+
+        self.do_batch = batch_size != 0
+        self.batch_size = batch_size
+
+        self.x, self.y_vanilla = image_array_to_xy(self.gt_original)
+        _, self.y_gradient = image_array_to_xy(self.gt_gradient)
+        _, self.y_laplacian = image_array_to_xy(self.gt_laplacian)
         
+        self.cursor = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        try:
+            data = self.get(self.cursor)
+        except IndexError:
+            raise StopIteration
+
+        self.cursor += 1
+        return data
+
+    def create_batches(self):
+        x, y_vani, y_grad, y_lapl = self.x, self.y_vanilla, y_gradient, y_laplacian
+
+        if self.do_batch:
+            x, y_vani, y_grad, y_lapl = shuffle_arrays_in_same_order([x, y_vani, y_grad, y_lapl])
+
+        self.batched_x, self.num_batches = split_to_batches(x, size=self.batch_size)
+        self.batched_y_vanilla, _ = split_to_batches(y_vani, size=self.batch_size)
+        self.batched_y_gradient, _ = split_to_batches(y_grad, size=self.batch_size)
+        self.batched_y_laplacian, _ = split_to_batches(y_lapl, size=self.batch_size)
+
+    def get(self, i):
+        x = jnp.array(self.batched_x[i])
+        y_vanilla = jnp.array(self.batched_y_vanilla[i])
+        y_gradient = jnp.array(self.batched_y_gradient[i])
+        y_laplacian = jnp.array(self.batched_y_laplacian[i])
+
+        data = {'input': x, 'vanilla': y_vanilla, 'gradient': y_gradient, 'laplacian':y_laplacian}
+
+        return data
+
 def normalize_img(img_array):
     img_array = img_array / 255.0
     return (img_array - 0.5) / 0.5
