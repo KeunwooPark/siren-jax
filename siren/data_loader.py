@@ -11,6 +11,8 @@ def get_data_loader_cls_by_type(type):
         return GradientImageLoader
     elif type == 'laplacian':
         return LaplacianImageLoader
+    elif type == 'combined':
+        return CombinedImageLoader
 
     raise ValueError("Wrong data loader type: {}".format(type))
 
@@ -130,9 +132,11 @@ class CombinedImageLoader:
         self.do_batch = batch_size != 0
         self.batch_size = batch_size
 
-        self.x, self.y_vanilla = image_array_to_xy(self.gt_original)
+        self.x, self.y_vanilla = image_array_to_xy(self.gt_vanilla)
         _, self.y_gradient = image_array_to_xy(self.gt_gradient)
         _, self.y_laplacian = image_array_to_xy(self.gt_laplacian)
+
+        self.create_batches()
         
         self.cursor = 0
 
@@ -149,7 +153,7 @@ class CombinedImageLoader:
         return data
 
     def create_batches(self):
-        x, y_vani, y_grad, y_lapl = self.x, self.y_vanilla, y_gradient, y_laplacian
+        x, y_vani, y_grad, y_lapl = self.x, self.y_vanilla, self.y_gradient, self.y_laplacian
 
         if self.do_batch:
             x, y_vani, y_grad, y_lapl = shuffle_arrays_in_same_order([x, y_vani, y_grad, y_lapl])
@@ -168,6 +172,11 @@ class CombinedImageLoader:
         data = {'input': x, 'vanilla': y_vanilla, 'gradient': y_gradient, 'laplacian':y_laplacian}
 
         return data
+
+    def get_ground_truth_image(self):
+        img = unnormalize_img(self.gt_vanilla)
+        img = img.squeeze()
+        return Image.fromarray(np.uint8(img))
 
 def normalize_img(img_array):
     img_array = img_array / 255.0
