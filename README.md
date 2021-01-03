@@ -7,7 +7,7 @@ with Periodic Activation Functions** by Sitzmann et al.
 
 Siren uses sine functions as activation functions and it can represent continous differentiable signals bettern than networks with other activation functions.
 
-If you want to know more about Siren, please check out the [project page](https://vsitzmann.github.io/siren/)
+If you want to know more about Siren, please check out the [project page](https://vsitzmann.github.io/siren/).
 
 ## How to use?
 
@@ -88,6 +88,10 @@ The network outputs are not so far better than the interplated image. The gradie
 
 These zoomed images. The laplacian trained image is very smooth compare to the interplated image. 
 
+## What is more?
 
+If you are interested in implicit representation, please check out [Awesome Implicit Neural Prepresentations](https://github.com/vsitzmann/awesome-implicit-representations).
+
+The curiosity that led me to reimplement the Jax was that whether it is possible to make a high-resolution image without any other dataset except the source image. Apparently, it does not work by simply genereating a larger image with a network that was trained with a small image. I'm trying some other stuffes, but not sure whether it will work.
 
 
