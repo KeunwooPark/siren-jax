@@ -1,5 +1,7 @@
 from jax.experimental import stax
 import jax
+from jax import vmap, jacfwd, hessian, grad
+from jax import numpy as jnp
 
 from siren.initializer import siren_init, siren_init_first, bias_uniform
 from siren import layer
@@ -14,7 +16,6 @@ def create_mlp(input_dim, num_channels, output_dim, omega = 30):
         modules.append(layer.Sine(omega))
 
     modules.append(layer.Dense(output_dim, W_init = siren_init(omega = omega), b_init=bias_uniform()))
-    modules.append(stax.Dense(output_dim))
     net_init_random, net_apply = stax.serial(*modules)
 
     in_shape = (-1, input_dim)
@@ -36,7 +37,7 @@ class Siren:
     ):
         net_params, net_apply = create_mlp(input_dim, layers, output_dim, omega)
 
-        self.net_params = net_params
+        self.init_params = net_params
         self.net_apply = net_apply
 
     """ *_p methods are used for optimization """
@@ -44,12 +45,22 @@ class Siren:
         return self.net_apply(net_params, x)
 
     def df(self, net_params, x):
-        return jacobain_wrt_input(self.net_apply, net_params, x)
+        return jacobian_wrt_input(self.net_apply, net_params, x)
 
     def d2f(self, net_params, x):
-        return hessian_wrt_input(self.net_apply, self.net_params, x)
+        return hessian_wrt_input(self.net_apply, net_params, x)
 
-def jacobain_wrt_input(net_apply, net_params, x):
+# This is more efficient than 'jacobian_wrt_input'
+# But 1) semantically less clear, and 2) it can be used only when Jacobian is guarenteed to be a diagonal matrix
+# https://github.com/google/jax/issues/564#issuecomment-479523169
+def elementwise_jacobian(net_apply, net_params, x):
+    f = lambda x: net_apply(net_params, x)
+    y, f_vjp = jax.vjp(f, x)
+    x_grad, = f_vjp(jnp.ones_like(y))
+    x_grad = jnp.expand_dims(x_grad, axis = 1)
+    return x_grad
+
+def jacobian_wrt_input(net_apply, net_params, x):
     f = lambda x: net_apply(net_params, x)
     vmap_jac = vmap(jacfwd(f))
 

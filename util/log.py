@@ -5,6 +5,7 @@ import os
 from collections import defaultdict
 from util.plot import plot_losses
 from PIL import Image
+import numpy as np
 
 def get_root_path():
     return pathlib.Path(__file__).parents[1]
@@ -56,9 +57,12 @@ class Logger:
         for k, v in log.items():
             self.log_for_plot[k].append(v)
 
-    def save_image(self, name, pil_img):
+    def save_image(self, name, img):
+        if not isinstance(img, Image.Image):
+            img = img.squeeze()
+            img = Image.fromarray(np.uint8(img))
         img_path = self.result_path / (name+".png")
-        pil_img.save(str(img_path))
+        img.save(str(img_path))
 
     def get_plot_file_name(self):
         return str(self.result_path / "loss.png")
