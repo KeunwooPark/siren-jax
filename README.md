@@ -35,4 +35,42 @@ This section shows results of *implicite image representation* and *solving Poss
 
 ### Reproducing Paper Results
 
+Results were almost same with the paper.
+
+#### Training with color vanilla image
+ground truth -- vanilla network output
+
+![vanilla color result](example_results/vanilla_color_result.png)
+
+#### Training with gray vanilla image
+ground truth -- vanilla output -- gradient output -- laplacian output
+
+![vanilla gray result](example_results/vanilla_gray_result.png)
+
+#### Training with gradient
+ground truth -- gradient output -- vanilla output -- laplacian output
+
+![gradient result](example_results/gradient_result.png)
+
+#### Training with laplacian
+ground truth -- laplacian output -- vanilla output -- gradient output
+
+![laplacian result](example_results/laplacian_result.png)
+
+### Upscale Test
+
+If a network can represent an image in an continous way, then it might be possible to create a higher resolution image. So I created larger images with the trained networks and compared them with an interpolated image.
+
+trained with vanilla image -- trained with gradient -- trained with laplacian -- interpliated (using PIL)
+
+![upscale result](example_results/upscale_result.png)
+
+The network outputs are not so far better than the interplated image. The gradient trained image is blurry and laplacian trained image's color is not accurate. However, network generated images are much more smoother than the interpolated image.
+
+![zoomed upscale result](example_results/upscale_result_zoom.png)
+
+These images are zoomed images. The laplacian trained image is very smooth compare to the interplated image. 
+
+
+
 

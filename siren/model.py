@@ -10,6 +10,8 @@ def get_model_cls_by_type(type):
         return GradientImageModel
     elif type == 'laplacian':
         return LaplacianImageModel
+    elif type == 'combined':
+        return CombinedImageModel
     
     raise ValueError("Wrong model type {}".format(type))
 
@@ -58,7 +60,7 @@ class NormalImageModel(BaseImageModel):
 class GradientImageModel(BaseImageModel):
     def create_network(self, layers, n_channel, omega):
         if n_channel != 1:
-            raise Exception("n_channel should be 1 for GradientImageModel")
+            raise Exception("n_channel should be 1 for {}".format(self.__class__.__name__))
         return Siren(2, layers, 1, omega)
 
     def create_loss_func(self):
@@ -83,5 +85,28 @@ class LaplacianImageModel(GradientImageModel):
             laplacian = jnp.sum(output, axis=-1)
             diff = (y - laplacian)
             return jnp.mean(diff**2)
+
+        return loss_func
+
+class CombinedImageModel(GradientImageModel):
+    def create_loss_func(self):
+        @jit
+        def loss_func(net_params, data):
+            x = data['input']
+            gt_vanilla = data['vanilla']
+            gt_gradient = data['gradient']
+            gt_laplacian = data['laplacian']
+
+            out_vanilla = self.net.f(net_params, x)
+            out_gradient = self.net.df(net_params, x)
+            out_gradient = out_gradient.squeeze()
+            out_laplacian = self.net.d2f(net_params, x)
+            out_laplacian = jnp.sum(out_laplacian, axis = -1)
+
+            loss_vanilla = jnp.mean((gt_vanilla - out_vanilla) ** 2)
+            loss_gradient = jnp.mean((gt_gradient - out_gradient) ** 2) * 1e1
+            loss_laplacian = jnp.mean((gt_laplacian - out_laplacian) ** 2) * 1e4
+
+            return loss_vanilla + loss_gradient + loss_laplacian
 
         return loss_func
