@@ -31,6 +31,8 @@ $ python test.py --run_name reference
 ```
 
 ## Example Results
+This section shows results of *implicite image representation* and *solving Possion equation*.
 
+### Reproducing Paper Results
 
 
