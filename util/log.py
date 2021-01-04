@@ -7,8 +7,10 @@ from util.plot import plot_losses
 from PIL import Image
 import numpy as np
 
+
 def get_root_path():
     return pathlib.Path(__file__).parents[1]
+
 
 class Logger:
     def __init__(self, name, create_if_exists=True):
@@ -61,7 +63,7 @@ class Logger:
         if not isinstance(img, Image.Image):
             img = img.squeeze()
             img = Image.fromarray(np.uint8(img))
-        img_path = self.result_path / (name+".png")
+        img_path = self.result_path / (name + ".png")
         img.save(str(img_path))
 
     def get_plot_file_name(self):
@@ -69,7 +71,6 @@ class Logger:
 
     def save_losses_plot(self):
         plot_losses(self.log_for_plot, self.get_plot_file_name())
-
 
 
 class Loader:
@@ -85,13 +86,13 @@ class Loader:
 
         if not self.results_path.exists():
             raise ValueError("No data with name {}".format(name))
-    
+
     def load_option(self):
         option_path = self.results_path / "option.txt"
         option = None
         with open(str(option_path)) as f:
             lines = f.readlines()
-            option = json.loads(lines[0]) # there should be only one line
+            option = json.loads(lines[0])  # there should be only one line
 
         return option
 
@@ -128,5 +129,3 @@ class Loader:
                 logges[k].append(v)
 
         return logges
-
-

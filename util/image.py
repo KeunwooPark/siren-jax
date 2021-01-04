@@ -4,16 +4,19 @@ import matplotlib.colors as colors
 import cv2
 import cmapy
 
+
 def gradient(img):
     grad_x = ndimage.sobel(img, axis=1)
     grad_y = ndimage.sobel(img, axis=0)
-    
-    return np.concatenate([grad_y, grad_x], axis = -1)
+
+    return np.concatenate([grad_y, grad_x], axis=-1)
+
 
 def laplace(img):
     return ndimage.laplace(img)
 
-def rescale_img(x, max_val = 1.0, min_val = 0.0):
+
+def rescale_img(x, max_val=1.0, min_val=0.0):
     x_min = np.min(x)
     x_max = np.max(x)
 
@@ -21,12 +24,14 @@ def rescale_img(x, max_val = 1.0, min_val = 0.0):
 
     return rescaled
 
+
 def clip_img_by_perc(x, perc):
     x_min = np.percentile(x, perc)
     x_max = np.percentile(x, 100 - perc)
     x = np.clip(x, x_min, x_max)
 
     return x
+
 
 def gradient_to_img(gradient):
     # code from original Siren implementation
@@ -43,11 +48,11 @@ def gradient_to_img(gradient):
 
     hsv = np.zeros((n_rows, n_cols, 3), dtype=np.float32)
     hsv[:, :, 0] = (ga + np.pi) / (2 * np.pi)
-    hsv[:, :, 1] = 1.
+    hsv[:, :, 1] = 1.0
 
     gm_min = np.percentile(gm, 5)
     gm_max = np.percentile(gm, 95)
-    
+
     gm = (gm - gm_min) / (gm_max - gm_min)
     gm = np.clip(gm, 0, 1)
 
@@ -56,10 +61,11 @@ def gradient_to_img(gradient):
     rgb *= 255
     return rgb
 
+
 def laplacian_to_img(laplacian):
     laplacian = clip_img_by_perc(laplacian, 2)
     rescaled = rescale_img(laplacian, max_val=255, min_val=0)
-    
-    colormap_img = cv2.applyColorMap(np.uint8(rescaled).squeeze(), cmapy.cmap('RdBu'))
+
+    colormap_img = cv2.applyColorMap(np.uint8(rescaled).squeeze(), cmapy.cmap("RdBu"))
     img = cv2.cvtColor(colormap_img, cv2.COLOR_BGR2RGB)
     return img
