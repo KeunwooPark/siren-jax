@@ -6,6 +6,7 @@ from jax import numpy as jnp
 import numpy as np
 import time
 
+
 class TrainingState:
     def __init__(self, params):
         self.params = params
@@ -14,8 +15,10 @@ class TrainingState:
         self.layers_grad_mean = None
         self.duration_per_iter = 0
 
+
 jax_optimizers = ["adam"]
 scpiy_style_optimizers = ["l-bfgs"]
+
 
 class JaxOptimizer:
     def __init__(self, optimizer_name, model, lr):
@@ -44,5 +47,3 @@ class JaxOptimizer:
 
     def get_optimized_params(self):
         return self.get_params(self.opt_state)
-
-
