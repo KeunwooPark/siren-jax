@@ -1,4 +1,4 @@
-from jax.experimental import stax
+from jax.example_libraries import stax
 import jax
 from jax import vmap, jacfwd, hessian, grad
 from jax import numpy as jnp
