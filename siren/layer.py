@@ -1,6 +1,6 @@
 from jax import numpy as jnp
 from jax.nn.initializers import glorot_normal
-from jax.experimental import stax
+from jax.example_libraries import stax
 from jax import random
 
 

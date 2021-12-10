@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import jax
-from jax.experimental import stax, optimizers
+from jax.example_libraries import stax, optimizers
 from jax import jit
 from jax import numpy as jnp
 import numpy as np
